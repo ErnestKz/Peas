@@ -17,7 +17,7 @@ import Maybe exposing (withDefault)
 
 import Util exposing (..)
 
-import Generated.EmployeeTracker exposing (..)
+import Generated.Peas exposing (..)
 
 type EventMessage
     = Bing

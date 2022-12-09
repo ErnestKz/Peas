@@ -1,4 +1,4 @@
-module Generated.EmployeeTracker exposing(..)
+module Generated.Peas exposing(..)
 
 import Json.Decode
 import Json.Encode exposing (Value)

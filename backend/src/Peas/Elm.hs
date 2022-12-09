@@ -34,7 +34,7 @@ deriveElmDef SE.defaultOptions ''UpdateEmployee
 elmGenerate :: IO ()
 elmGenerate = print "Running Generator:" >>
   generateElmModuleWith
-    defElmOptions [ "Generated", "EmployeeTracker" ]
+    defElmOptions [ "Generated", "Peas" ]
     defElmImports "../frontend/src/"
     [ DefineElm (Proxy :: Proxy NoContent)
 
