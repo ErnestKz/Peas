@@ -1,5 +1,5 @@
 cabal-version:      3.0
-name:               EmployeeTracker
+name:               peas
 version:            0.1.0.0
 license:            MIT
 license-file:       LICENSE
@@ -15,13 +15,13 @@ common warnings
 library
     import:           warnings
     
-    exposed-modules: EmployeeTracker.Application
-                   , EmployeeTracker.Elm
+    exposed-modules: Peas.Application
+                   , Peas.Elm
 
-    other-modules:   EmployeeTracker.Prelude
-                   , EmployeeTracker.Endpoints
-                   , EmployeeTracker.PageServer
-                   , EmployeeTracker.DatabaseOperations
+    other-modules:   Peas.Prelude
+                   , Peas.Endpoints
+                   , Peas.PageServer
+                   , Peas.DatabaseOperations
 
     build-depends:   base
     
@@ -63,7 +63,7 @@ executable exe-server
     import:           warnings
     main-is:          Main.hs
     build-depends: base
-                 , EmployeeTracker
+                 , peas
     hs-source-dirs:   exe-server
     default-language: GHC2021
 
@@ -71,6 +71,6 @@ executable exe-elm-gen
     import:           warnings
     main-is:          Main.hs
     build-depends: base
-                 , EmployeeTracker
+                 , peas
     hs-source-dirs:   exe-elm-gen
     default-language: GHC2021

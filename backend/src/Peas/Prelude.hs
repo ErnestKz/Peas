@@ -1,4 +1,4 @@
-module EmployeeTracker.Prelude
+module Peas.Prelude
   ( U.fromText
   , U.toText
   , U.UUID

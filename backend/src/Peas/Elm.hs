@@ -2,11 +2,11 @@
 {-# language DataKinds #-}
 {-# language OverloadedStrings #-}
 
-module EmployeeTracker.Elm where
+module Peas.Elm where
 
-import EmployeeTracker.Prelude
-import EmployeeTracker.DatabaseOperations
-import EmployeeTracker.Endpoints
+import Peas.Prelude
+import Peas.DatabaseOperations
+import Peas.Endpoints
 
 import Servant ( NoContent )
 import Database.PostgreSQL.Simple.Time (Unbounded)

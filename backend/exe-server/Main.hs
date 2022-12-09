@@ -1,6 +1,6 @@
 module Main where
 
-import EmployeeTracker.Application
+import Peas.Application
 
 main :: IO ()
 main = runApplication

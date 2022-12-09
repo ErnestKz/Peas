@@ -1,12 +1,12 @@
 {-# language OverloadedStrings #-}
 
-module EmployeeTracker.Application where
+module Peas.Application where
 
-import EmployeeTracker.Prelude
+import Peas.Prelude
 
-import EmployeeTracker.Endpoints
-import EmployeeTracker.PageServer
-import EmployeeTracker.DatabaseOperations
+import Peas.Endpoints
+import Peas.PageServer
+import Peas.DatabaseOperations
 
 import Servant
 import Network.Wai

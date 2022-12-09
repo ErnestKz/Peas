@@ -1,6 +1,6 @@
 module Main where
 
-import EmployeeTracker.Elm
+import Peas.Elm
 
 main :: IO ()
 main = elmGenerate

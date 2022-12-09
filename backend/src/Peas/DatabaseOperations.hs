@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module EmployeeTracker.DatabaseOperations where
+module Peas.DatabaseOperations where
 
-import EmployeeTracker.Prelude
+import Peas.Prelude
 
 import Database.PostgreSQL.Simple
 

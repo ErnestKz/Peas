@@ -1,7 +1,7 @@
 {-# language DataKinds #-}
 {-# language OverloadedStrings #-}
 
-module EmployeeTracker.PageServer where
+module Peas.PageServer where
 
 import Servant
 

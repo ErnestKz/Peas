@@ -1,10 +1,10 @@
 {-# language DataKinds #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
 
-module EmployeeTracker.Endpoints where
+module Peas.Endpoints where
 
-import EmployeeTracker.Prelude
-import EmployeeTracker.DatabaseOperations
+import Peas.Prelude
+import Peas.DatabaseOperations
 
 import Servant.API
 import Servant.Auth.Server
