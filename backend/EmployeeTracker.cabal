@@ -1,0 +1,76 @@
+cabal-version:      3.0
+name:               EmployeeTracker
+version:            0.1.0.0
+license:            MIT
+license-file:       LICENSE
+author:             ernestkz
+maintainer:         ernestkuznecovs@gmail.com
+                    
+category:           Web
+build-type:         Simple
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    
+    exposed-modules: EmployeeTracker.Application
+                   , EmployeeTracker.Elm
+
+    other-modules:   EmployeeTracker.Prelude
+                   , EmployeeTracker.Endpoints
+                   , EmployeeTracker.PageServer
+                   , EmployeeTracker.DatabaseOperations
+
+    build-depends:   base
+    
+                   , wai
+                   , warp
+                   , servant
+                   , servant-server
+                   , servant-auth-server
+                   , wai-extra
+                   , fast-logger
+
+                   , postgresql-simple
+
+                   , lucid
+                   , servant-lucid
+
+                   , elm-bridge
+                   , servant-elm
+                                       
+                   , servant-client
+                   , servant-client-core
+                   , http-client
+
+                   , containers
+                   , text
+                   , bytestring
+                   , data-default
+                   , uuid
+                   , time
+
+                   , free
+                   , mtl
+                   , aeson
+
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+executable exe-server
+    import:           warnings
+    main-is:          Main.hs
+    build-depends: base
+                 , EmployeeTracker
+    hs-source-dirs:   exe-server
+    default-language: GHC2021
+
+executable exe-elm-gen
+    import:           warnings
+    main-is:          Main.hs
+    build-depends: base
+                 , EmployeeTracker
+    hs-source-dirs:   exe-elm-gen
+    default-language: GHC2021
