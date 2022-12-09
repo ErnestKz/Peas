@@ -1,5 +1,6 @@
 (cd ./database && sh delete_db.sh)
 (cd ./database && sh init_db.sh)
 (cd ./backend && cabal build && cabal run exe-elm-gen)
-(cd ./frontend && elm make --optimize ./src/Main.elm --output=../public/app.js)
+(cd ./frontend && elm make ./src/Main.elm --output=../public/app.js)
+# (cd ./frontend && elm make --optimize ./src/Main.elm --output=../public/app.js)
 (cd ./backend && cabal run exe-server)
