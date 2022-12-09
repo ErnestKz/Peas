@@ -23,9 +23,14 @@ insert into employees_table
        , active)
        
        values
-	( 'John'
-	, 'Doe'
-	, date '2001-10-13'
-	, 'john@apothecary.ie'
+	( 'John', 'Doe', date '2001-10-13' , 'john@apothecary.ie'
 	, (select skill_id from skill_table where skill_name='Potion Seller')
-	, true);
+	, true ),
+
+	( 'Bob', 'Smith', date '1970-10-24' , 'boby@apothecary.ie'
+	, (select skill_id from skill_table where skill_name='Potion Seller')
+	, true ),
+
+	( 'Aime', 'Lee', date '1999-3-12' , 'aime@apothecary.ie'
+	, (select skill_id from skill_table where skill_name='Potion Seller')
+	, true ) ;
