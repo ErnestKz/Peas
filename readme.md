@@ -2,7 +2,7 @@
 
 This project demonstrates a fullstack application.
 
-### Building
+## Building
 
 This project uses the Nix package manager:
 - https://nixos.org/download.html
@@ -24,9 +24,9 @@ $ sh make.sh
 - compile the Elm fronted.
 - run the server on `http://localhost:8081` which responds to page and endpoint requests
 
-### Authentication with JWT
+## Authentication
 
-#### JSON Web Token (JWT)
+### JSON Web Token (JWT)
 JSON Web Token (JWT) is a flexible format of a token which allows for different authentication capabilities based on how the JWT is constructed and used.
 
 The wikipedia page provides a nice description:
@@ -46,7 +46,7 @@ In a rough summary:
     - The signature is of the header concatenated with the payload. 
     - The point of the signature it to able to be able to tell with either the public or private key, that it was indeed signed by the expected private key.
 
-#### Authentication in this App
+### Authentication in this App
 
 - In this app the user will receive a JWT upon proving that they are who they say they are i.e providing a username and password (sent over HTTPS).
 - The server will construct the JWT and its signature with its private key and then send it to the client.
@@ -59,4 +59,4 @@ Hence this relies on the trust of:
 - The browser. Must ensure browsers javascript runtime/storage is sandboxed and there is no ways of leaking the token outside of the context of the webpage and webserver.
 - The transimission mechanism. Must ensure HTTPS.
 - The client user. Must trust that the user doesn't want to simply send the token to someone else.
-
+- The initial form of verification. i.e in this case the username and password process must be secure, and implemented correctly by the server.
