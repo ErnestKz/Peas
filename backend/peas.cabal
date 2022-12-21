@@ -16,7 +16,6 @@ library
     import:           warnings
     
     exposed-modules: Peas.Application
-                   , Peas.Elm
 
     other-modules:   Peas.Prelude
                    , Peas.Endpoints
@@ -37,10 +36,7 @@ library
 
                    , lucid
                    , servant-lucid
-
-                   , elm-bridge
-                   , servant-elm
-                                       
+                   
                    , servant-client
                    , servant-client-core
                    , http-client
@@ -65,12 +61,4 @@ executable exe-server
     build-depends: base
                  , peas
     hs-source-dirs:   exe-server
-    default-language: GHC2021
-
-executable exe-elm-gen
-    import:           warnings
-    main-is:          Main.hs
-    build-depends: base
-                 , peas
-    hs-source-dirs:   exe-elm-gen
     default-language: GHC2021

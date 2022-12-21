@@ -18,7 +18,11 @@ hpkgs.developPackage {
         [ cabal-install
           ghcid
           haskell-language-server
-          (with pkgs.elmPackages; [ elm ])
+
           pkgs.postgresql
+
+          pkgs.nodePackages.create-react-app
+          pkgs.nodePackages.npm
+          pkgs.nodejs
         ]);
 }

@@ -23,7 +23,7 @@ insert into employees_table
        , active)
        
        values
-	( 'John', 'Doe', date '2001-10-13' , 'john@apothecary.ie'
+	( 'John', NULL, date '2001-10-13' , 'john@apothecary.ie'
 	, (select skill_id from skill_table where skill_name='Potion Seller')
 	, true ),
 
