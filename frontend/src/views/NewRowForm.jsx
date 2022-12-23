@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import * from './types.jsx';
-import * from './employee/employee.jsx';
-import * from './effects.jsx';
-
+import { doEither } from '../types.js';
+import { employeeTableFields, employeeToString } from '../employee/employee.js';
 
 const DataTableNewRowForm = ( { newEmployeeInput, setNewEmployeeInput } ) => {
     const renderFormField = field => {
@@ -22,16 +20,18 @@ const DataTableNewRowForm = ( { newEmployeeInput, setNewEmployeeInput } ) => {
     return (<ul> { employeeTableFields.map(renderFormField) } </ul>)
 };
 
-const DataTableNewRowFormValidation = ( { newEmployeeValidation } ) => {
+const DataTableNewRowFormValidation = ( { newEmployeeValidation,
+					  newEmployeeEffect } ) => {
     return doEither(
 	newEmployeeValidation
 	, okEmp => (
-	    <button onClick={() => newEmployee(okEmp) }>
+	    <button onClick={() => newEmployeeEffect(okEmp) }>
 		Submit
-	    </button>);
-	
+	    </button>)
 	, errEmp => (
 	    <ul>
 		{ errEmp.map(e => (<li>{e}</li>)) }
 	    </ul>));
 };
+
+export { DataTableNewRowForm, DataTableNewRowFormValidation }

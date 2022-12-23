@@ -1,14 +1,11 @@
-import * from './types.jsx';
-
-const employeeTableFields =
-    [ firstnameField
-    , lastnameField
-    , dobField
-    , emailField ];
+import { Just, Nothing, Maybe,
+	 Err, Ok, doEither,
+	 dispatchTypeclass,
+	 id, const_ }
+from '../types.js';
 
 const constructRecord = f => employeeTableFields
-    .reduce((acc, field) => field
-	.updateField(acc, f(field)), {});
+    .reduce((acc, field) => field.update(acc, f(field)), {});
 
 const employeeFromDb = dbEmployee => (
     constructRecord( field => field.fromDb(dbEmployee)));
@@ -45,7 +42,7 @@ const firstnameField = {
     project: r => r.firstname,
     update: (r, v) => ({...r, firstname: v}),
     inputType: "text",
-    fromString: c => Ok(emptyFieldParser(c))
+    fromString: c => Ok(emptyFieldParser(c)),
     fromDb: Maybe
 };
 
@@ -54,7 +51,7 @@ const lastnameField = {
     project: r => r.lastname,
     update: (r, v) => ({...r, lastname: v}),
     inputType: "text",
-    fromString: c => Ok(emptyFieldParser(c))
+    fromString: c => Ok(emptyFieldParser(c)),
     fromDb: Maybe
 };
 
@@ -63,7 +60,7 @@ const dobField = {
     project: r => r.dob,
     update: (r, v) => ({...r, dob: v}),
     inputType: "date",
-    fromString: c => Ok(emptyFieldParser(c))
+    fromString: c => Ok(emptyFieldParser(c)),
     fromDb: Maybe
 };
 
@@ -72,19 +69,24 @@ const emailField = {
     project: r => r.email,
     update: (r, v) => ({...r, email: v}),
     inputType: "email",
-    fromString: c => Ok(emptyFieldParser(c))
+    fromString: c => Ok(emptyFieldParser(c)),
     fromDb: Maybe
 };
 
+const employeeTableFields =
+    [ firstnameField
+    , lastnameField
+    , dobField
+    , emailField ];
 
 // Either [String] Employee
 const parseNewEmployeeInput = newEmployeeInput => {
     const parsedValues =
-	constructRecord(name => name.fromString(
-	    name.project(newEmployeeInput)));
+	constructRecord(field => field.fromString(
+	    field.project(newEmployeeInput)));
     
-    return employeeTableFields.reduce((soFar, name) => {
-	const parsedValue = field.project(parsedFields);
+    return employeeTableFields.reduce((soFar, field) => {
+	const parsedValue = field.project(parsedValues);
 	return doEither(parsedValue
 		      , valueOk => doEither(
 			  soFar
@@ -96,3 +98,10 @@ const parseNewEmployeeInput = newEmployeeInput => {
 			  , soFarErr => Err(soFarErr + valueErr)));
     }, Just(parsedValues));
 };
+
+
+export { employeeTableFields,
+	 constructRecord,
+	 employeeFromDb, employeeToString,
+	 inputTypeToInitialValue,
+	 parseNewEmployeeInput }

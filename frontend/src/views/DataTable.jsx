@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import * from './types.jsx';
-import * from './employee/employee.jsx';
+import { employeeTableFields, employeeToString } from '../employee/employee.js';
 
 const DataTable = ( { employees } ) => {
     return (
@@ -28,3 +27,6 @@ const DataRows = ( { employees } ) => {
 	}</tr>
     ));
 };
+
+
+export { DataTable }

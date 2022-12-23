@@ -1,4 +1,5 @@
 const id = e => e;
+const const_ = (a => (_ => a))
 
 const Just = e => ["_JUST", e];
 const Nothing = ["_NOTHING"];
@@ -13,16 +14,6 @@ const doEither = (either, okFn, errFn) => {
     } else {
 	return okFn(either[1]);
     }
-};
-
-const doEither_ = (okFn, errFn) => {
-    return (either => {
-	if (either[0] == "_ERR"){
-	    return errFn(either[1]);
-	} else {
-	    return okFn(either[1]);
-	}
-    })
 };
 
 function dispatchTypeclass ( dispatchMap, value ) {
@@ -52,3 +43,9 @@ function dispatchTypeclass ( dispatchMap, value ) {
 	}
     }
 };
+
+
+export { id, const_,
+	 Just, Nothing, Maybe,
+	 Err, Ok, doEither,
+	 dispatchTypeclass }
