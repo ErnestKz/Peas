@@ -1,80 +1,116 @@
 import { const_ } from './types.js';
 import { employeeFromDb } from './employee/employee.js';
 
-const baseUrl = "http://localhost:8081/";
-const employeeRoute = baseUrl + "employee";
-
-
-const getEmployeesReq = {
-    method: "GE" 
-};
-
 const fetchResponseError = (url, req) => {
     const okFn = r => r.ok ? r.json() : Promise.reject(r);
     const errFn = Promise.reject;
     return fetch(url, req).then(okFn, errFn);
 };
 
+const endWrapOk = fa => a => { fa(a); return a};
+const endWrapErr = fa => a => { fa(a); return Promise.reject(a)}
 
-function getEmployeesRequest(){
-    return fetch(employeeRoute, getEmployeesReq)
-	.then(r => r.json())
-	.then(e => e.map(employeeFromDb) );
-}
+const mkAddStackMessage = (setStack => (msg => {
+    const appendToStack = stack => ([...stack, msg])
+    setStack(appendToStack)
+}));
 
-function getEmployeesRequestW(ok, err){
-    return fetchResponseError(employeeRoute, getEmployeesReq)
+const mkCommandWithEff = (initMsg, okMsg, failMsg) => asyncEffect => (setStack, initMsgValue) => effectInput => {
+    const addStackMessage = mkAddStackMessage(setStack);
+    /* here the bug */
+    const okPassthrough = endWrapOk(a => {
+	addStackMessage(okMsg(a))
+    });
+    const errPassthrough = endWrapErr(a => {
+	addStackMessage(failMsg(a))
+    });
+    
+    addStackMessage(initMsg(initMsgValue));
+    return asyncEffect(effectInput).then(okPassthrough, errPassthrough)
+};
+
+
+const baseUrl = "http://localhost:8081/";
+const employeeRoute = baseUrl + "employee";
+
+
+
+const getEmployeesReq = {
+    method: "GET" 
+};
+
+const getEmployeesIORequest = (_) => {
+    return fetchResponseError(employeeRoute, getEmployeesReq).then(e => e.map(employeeFromDb))
+};
+
+
+
+const newEmployeeReq = data => ({
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+});
+
+const newEmployeeIORequest = employeeDbObject => {
+    return fetchResponseError(employeeRoute, newEmployeeReq(employeeDbObject))
 	.then(e => e.map(employeeFromDb))
-	.then(ok)
-	.catch(err);
-}
-
-function getEmployeesEffect(getEmployeesCmd, setEffectStack, setEmployees){
-    getEmployeesCmd().then( employees => setEmployees(const_(employees)));
-}
-
-function getEmployees(setEffectStack, setEmployees) {
-    getEmployeesEffect(getEmployeesRequest, setEffectStack, setEmployees);
-}
+};
 
 
-function newEmployee(setEffectStack, setEmployees, newEmployee){
-    console.log(newEmployee)
-}
 
 
-/*
-   accept implementations of
-   - the set state functions
-   - the effect cmd function
-   in the app, set the implementations for the functions
- */
+const mkGetEmployeesSendMessage = a => {
+    const message = { eventType: "GetEmployeesSend",
+		      info: a };
+    return message;
+};
 
-/*
-   have some sort of single function where can set the
-   interpretation functions for the commands and the
-   setters of the state
+const mkGetEmployeesReceiveOkMessage = a => {
+    const message = { eventType: "GetEmployeesReceiveOk",
+		      info: a };
+    return message;
+};
 
- */
+const mkGetEmployeesReceiveErrMessage = a => {
+    const message = { eventType: "GetEmployeesReceiveErr",
+		      info: a };
+    return message;
+};
 
-/*
-   sort of my own abstraction for the the .then syntax
-   in order to add additional information
- */
+const mkGetEmployeesWithEffect = mkCommandWithEff(
+    mkGetEmployeesSendMessage,
+    mkGetEmployeesReceiveOkMessage,
+    mkGetEmployeesReceiveErrMessage);
 
-/*
-   perhaps ability to write what should happen and what
-   error message it should have when it fails in a specific
-   part of the command chain
+const getEmployeesCommandIO = mkGetEmployeesWithEffect(getEmployeesIORequest);
+// forgot to put stuff inot it
 
- */
 
-/*
-   can pass down all the commands from the app root
-   could also pass down an app config that stores
-   the desired effect implementations
- */
 
-/* export { newEmployeeEffect, getEmployeesEffect } */
-export { getEmployees, newEmployee,
-	 getEmployeesRequest, getEmployeesRequestW}
+
+const mkNewEmployeeSendMessage = a => {
+    const message = { eventType: "NewEmployeeSend",
+		      info: a };
+    return message;
+};
+
+const mkNewEmployeeReceiveOkMessage = a => {
+    const message = { eventType: "NewEmployeeReceiveOk",
+		      info: a };
+    return message;
+};
+
+const mkNewEmployeeReceiveErrMessage = a => {
+    const message = { eventType: "NewEmployeeReceiveErr",
+		      info: a };
+    return message;
+};
+
+const mkNewEmployeeeWithEffect = mkCommandWithEff(
+    mkNewEmployeeSendMessage,
+    mkNewEmployeeReceiveOkMessage,
+    mkNewEmployeeReceiveErrMessage);
+
+const newEmployeeCommandIO = mkNewEmployeeeWithEffect(newEmployeeIORequest);
+
+export { getEmployeesCommandIO, newEmployeeCommandIO }

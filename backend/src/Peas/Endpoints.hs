@@ -17,15 +17,15 @@ type PublicEmployeeEndpoints
 
 type EmployeeEndpoints = 
   (Get '[JSON] [Employee]
-    :<|> (ReqBody '[JSON] (NewEmployee)
-           :> PostNoContent)
+   :<|> (ReqBody '[JSON] (NewEmployee)
+          :> PostNoContent)
     
-    :<|> (Capture "employeeid" Text
-           :> ReqBody '[JSON] (UpdateEmployee)
-           :> PutNoContent)
+   :<|> (Capture "employeeid" Text
+         :> ReqBody '[JSON] (UpdateEmployee)
+         :> PutNoContent)
     
-    :<|> (Capture "employeeid" Text
-           :> DeleteNoContent))
+   :<|> (Capture "employeeid" Text
+          :> DeleteNoContent))
 {-
 type AuthenticateEndpoint
   = "authenticate"

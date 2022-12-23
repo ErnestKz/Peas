@@ -95,7 +95,7 @@ const parseNewEmployeeInput = newEmployeeInput => {
 		      , valueErr => doEither(
 			  soFar
 			  , soFarOk => Err([valueErr])
-			  , soFarErr => Err(soFarErr + valueErr)));
+			  , soFarErr => Err([...soFarErr, valueErr])));
     }, Just(parsedValues));
 };
 
