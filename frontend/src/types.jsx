@@ -21,7 +21,7 @@ const maybeNull = a => (e => {
 
  */
 const Maybe = a => v => {
-    const c = v.constructor;
+    const c = v._CONS;
     switch(c){
 	case '_JUST':
 	    return a(v);
@@ -66,6 +66,7 @@ const Ok = a => e => ({ _CONS: "_OK"
 		      , _VALUE: a(e)});
 
 const doEither = (either, okFn, errFn) => {
+    console.log(either)
     if (either._CONS == "_ERR"){
 	return errFn(either._VALUE);
     } else {
@@ -101,6 +102,6 @@ function dispatchTypeclass ( dispatchMap, value ) {
 
 
 export { id, const_,
-	 Just, Nothing, Maybe,
+	 Just, Nothing, Maybe, maybeNull, Bool,
 	 Err, Ok, doEither,
 	 dispatchTypeclass }

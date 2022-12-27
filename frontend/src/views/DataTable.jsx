@@ -13,23 +13,17 @@ const DataTable = ( { employees } ) => {
 
 const DataHeaders = () => {
     const columnHeaders = employeeTableFields
-	.map( field => <th className="columnHead">{ field.name }</th>)
+	.map( field => field.toTableHeader(field) )
     return <tr> { columnHeaders } </tr>
 };
 
 const DataRows = ( { employees } ) => {
-    return employees.map(employee => (
-	<tr>{
-	    employeeTableFields.map( field => {
-		console.log("before field", employee)
-		// something with from db
-		console.log("field", field.project(employee));
-		const renderedValue = employeeToString(field.project(employee))
-		return (<td> { renderedValue } </td>)
-	    })
-	}</tr>
-    ));
-};
+    return employees.map(employee => {
+	const trData = employeeTableFields
+	    .map( field => field.toTableElement(field.project(employee), field))
+	return (<tr>{ trData.flat() }</tr>)
+    });
+}
 
 
 export { DataTable }

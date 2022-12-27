@@ -56,9 +56,6 @@ const newEmployeeIORequest = employeeDbObject => {
 	.then(e => e.map(employeeFromDb))
 };
 
-
-
-
 const mkGetEmployeesSendMessage = a => {
     const message = { eventType: "GetEmployeesSend",
 		      info: a };
