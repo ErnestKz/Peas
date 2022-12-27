@@ -8,8 +8,9 @@ const constructRecord = f => employeeTableFields
     .reduce((acc, field) => field.update(acc, f(field)), {});
 
 const employeeFromDb = dbEmployee => (
-    constructRecord( field => field.fromDb(dbEmployee)));
+    constructRecord(field => field.fromDb(field.project(dbEmployee))));
 
+// TODO: rename this to employeeFieldToString
 const employeeToString = x => dispatchTypeclass(
     employeeToStringDispatchMap, x);
 
@@ -19,6 +20,34 @@ const employeeToStringDispatchMap =
       "string": id,
       "number": x => x.toString(),
       "bool": b => b.toString()
+    };
+
+/* const employeeToRender */
+
+/*
+   looks like ill need to support record types
+ */
+
+/* ["_SKILL" , val]
+ * {
+ *     skill_id : string,
+ *     skill_name: string,
+ *     skill_description: Maybe
+ * } */
+
+const employeeFieldToDb = x => dispatchTypeclass(employeeToDbDispatchMap, x);
+
+const employeeToDb = employee => {
+    const f = field => employeeFieldToDb(field.project(employee));
+    return constructRecord(f);
+};
+
+const employeeToDbDispatchMap =
+    { "_JUST": ([_, val]) => employeeToString(val),
+      "_NOTHING": _ => null,
+      "string": id,
+      "number": id,
+      "bool": id
     };
 
 const inputTypeToInitialValue = (inputType) => {
@@ -73,11 +102,25 @@ const emailField = {
     fromDb: Maybe
 };
 
+const activeField = {
+    name: "Active",
+    project: r => r.active,
+    update: (r, v) => ({...r, active: v}),
+    
+    inputType: "radio",
+    fromString: c => Ok(emptyFieldParser(c)),
+    fromDb: Maybe
+};
+
+
+
 const employeeTableFields =
     [ firstnameField
     , lastnameField
     , dobField
-    , emailField ];
+    , emailField
+    , activeField
+    ];
 
 // Either [String] Employee
 const parseNewEmployeeInput = newEmployeeInput => {
@@ -102,6 +145,6 @@ const parseNewEmployeeInput = newEmployeeInput => {
 
 export { employeeTableFields,
 	 constructRecord,
-	 employeeFromDb, employeeToString,
+	 employeeFromDb, employeeToString, employeeToDb, 
 	 inputTypeToInitialValue,
 	 parseNewEmployeeInput }

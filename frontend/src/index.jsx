@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import { constructRecord,
 	 inputTypeToInitialValue,
-	 parseNewEmployeeInput} from './employee/employee.js';
+	 parseNewEmployeeInput, employeeToDb } from './employee/employee.js';
 
 import { getEmployeesCommandIO, newEmployeeCommandIO } from './effects.js';
 
@@ -13,6 +13,8 @@ import { DataTableNewRowForm
 import { DataTable } from './views/DataTable.js'
 
 import { RootEffectStacks } from './views/EffectStack.js'
+
+import { const_ } from './types.js'
 
 
 const mkSetSubState = (setState, lens) => {
@@ -81,27 +83,36 @@ const App = ( ) => {
     const setEmployees = mkSetSubState(setAppState, employeesLens)
     const setEffectStackHistory = mkSetSubState(setAppState, effectStackHistoryLens);
     const addNewEffectStack = mkAddNewEffectStack(setEffectStackHistory)
-    
+
     const startGetEmployeesCommandIO = () => {
-	const setStack = addNewEffectStack()
-	return getEmployeesCommandIO(setStack, "A Test Get Employees")(null);
+	const setStack = addNewEffectStack();
+	getEmployeesCommandIO(setStack, "Button - Get Employees")(
+	    null).then(employees => setEmployees(const_(employees)));
+    };
+
+    const startNewEmployeeCommandIO = ( newEmployee ) => {
+	const setStack = addNewEffectStack();
+	newEmployeeCommandIO(setStack, "Submit - New Employee")(employeeToDb( newEmployee ))
+	    .then(_ => getEmployeesCommandIO(setStack, "Post Submit - Get Employees")(null))
+	    .then(employees => setEmployees(const_(employees)));
     };
 
     const newEmployeeValidation = parseNewEmployeeInput(appState.newEmployeeInput);
     return (
 	<div className="App">
-	    <button onClick = {startGetEmployeesCommandIO} >
+	    <button onClick = { startGetEmployeesCommandIO } >
 		Click
 	    </button>
 	    <DataTable employees = { appState.employees } />
 	    <RootEffectStacks effectStackHistory = { appState.effectStackHistory } />
 	    
-	    {/* <DataTableNewRowForm
+	    <DataTableNewRowForm
 		newEmployeeInput= { appState.newEmployeeInput }
 		setNewEmployeeInput = { setNewEmployeeInput }/>
-		<DataTableNewRowFormValidation
-		newEmployee={ newEmployeeEffect }
-		newEmployeeValidation = { newEmployeeValidation }/> */}
+	    
+	    <DataTableNewRowFormValidation
+		newEmployee={ startNewEmployeeCommandIO }
+		newEmployeeValidation = { newEmployeeValidation }/>
 	</div>);
 };
 

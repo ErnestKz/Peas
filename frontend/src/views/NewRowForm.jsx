@@ -21,11 +21,11 @@ const DataTableNewRowForm = ( { newEmployeeInput, setNewEmployeeInput } ) => {
 };
 
 const DataTableNewRowFormValidation = ( { newEmployeeValidation,
-					  newEmployeeEffect } ) => {
+					  newEmployee } ) => {
     return doEither(
 	newEmployeeValidation
 	, okEmp => (
-	    <button onClick={() => newEmployeeEffect(okEmp) }>
+	    <button onClick={() => newEmployee(okEmp) }>
 		Submit
 	    </button>)
 	, errEmp => (

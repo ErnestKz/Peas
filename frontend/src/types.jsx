@@ -8,6 +8,11 @@ const Maybe = e => (e == null ? Nothing : Just(e));
 const Err = e => ["_ERR", e];
 const Ok = e =>  ["_OK", e];
 
+/* const Just => a => e => ["_JUST", a(e)];
+ * const Maybe = a => (e => (e == null ? Nothing : Just(a)(e)));
+ * const Err = a => e => ["_ERR", a(e)];
+ * const Ok = a => e =>  ["_OK", a(e)];
+ *  */
 const doEither = (either, okFn, errFn) => {
     if (either[0] == "_ERR"){
 	return errFn(either[1]);
@@ -17,7 +22,8 @@ const doEither = (either, okFn, errFn) => {
 };
 
 function dispatchTypeclass ( dispatchMap, value ) {
-    console.log(value)
+    console.log(typeof value)
+    
     if (Array.isArray(value)) {
 	const constructor = value[0];
 	if (constructor in dispatchMap) {

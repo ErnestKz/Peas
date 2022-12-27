@@ -21,6 +21,9 @@ const DataRows = ( { employees } ) => {
     return employees.map(employee => (
 	<tr>{
 	    employeeTableFields.map( field => {
+		console.log("before field", employee)
+		// something with from db
+		console.log("field", field.project(employee));
 		const renderedValue = employeeToString(field.project(employee))
 		return (<td> { renderedValue } </td>)
 	    })
