@@ -11,11 +11,10 @@ const employeeFromDb = dbEmployee => (
     constructRecord(field => field.fromDb(field.project(dbEmployee))));
 
 // TODO: rename this to employeeFieldToString
-const employeeToString = x => dispatchTypeclass(
-    employeeToStringDispatchMap, x);
+const employeeToString = x => dispatchTypeclass(employeeToStringDispatchMap, x);
 
 const employeeToStringDispatchMap =
-    { "_JUST": ([_, val]) => employeeToString(val),
+    { "_JUST": val => employeeToString(val._VALUE),
       "_NOTHING": _ => "EMPTY",
       "string": id,
       "number": x => x.toString(),
@@ -23,6 +22,8 @@ const employeeToStringDispatchMap =
     };
 
 /* const employeeToRender */
+
+/* and perhaps an employee record type*/
 
 /*
    looks like ill need to support record types
@@ -43,7 +44,7 @@ const employeeToDb = employee => {
 };
 
 const employeeToDbDispatchMap =
-    { "_JUST": ([_, val]) => employeeToString(val),
+    { "_JUST": val => employeeToString(val._VALUE),
       "_NOTHING": _ => null,
       "string": id,
       "number": id,
@@ -59,20 +60,22 @@ const inputTypeToInitialValue = (inputType) => {
 	case "email":
 	    return ""
 	default:
-	    throw new Error('Initial value for ' +
-			    inputType + ' not provided');
+	    throw new Error('Initial value for ' + inputType + ' not provided');
     }
 };
-
-const emptyFieldParser = s => (s == "" ? Nothing : Just(s))
+// String -> Either String (Maybe String)
+const emptyFieldParser = s => {
+    Ok(Maybe(String))(s == "" ? Nothing : Just(String)(s))
+};
 
 const firstnameField = {
     name: "Firstname",
     project: r => r.firstname,
     update: (r, v) => ({...r, firstname: v}),
     inputType: "text",
-    fromString: c => Ok(emptyFieldParser(c)),
-    fromDb: Maybe
+
+    fromString: emptyFieldParser,
+    fromDb: maybeNull(String)
 };
 
 const lastnameField = {
@@ -80,8 +83,8 @@ const lastnameField = {
     project: r => r.lastname,
     update: (r, v) => ({...r, lastname: v}),
     inputType: "text",
-    fromString: c => Ok(emptyFieldParser(c)),
-    fromDb: Maybe
+    fromString: emptyFieldParser,
+    fromDb: maybeNull(String)
 };
 
 const dobField = {
@@ -89,8 +92,8 @@ const dobField = {
     project: r => r.dob,
     update: (r, v) => ({...r, dob: v}),
     inputType: "date",
-    fromString: c => Ok(emptyFieldParser(c)),
-    fromDb: Maybe
+    fromString: emptyFieldParser,
+    fromDb: maybeNull(String)
 };
 
 const emailField = {
@@ -98,8 +101,8 @@ const emailField = {
     project: r => r.email,
     update: (r, v) => ({...r, email: v}),
     inputType: "email",
-    fromString: c => Ok(emptyFieldParser(c)),
-    fromDb: Maybe
+    fromString: emptyFieldParser,
+    fromDb: maybeNull(String)
 };
 
 const activeField = {
@@ -108,8 +111,8 @@ const activeField = {
     update: (r, v) => ({...r, active: v}),
     
     inputType: "radio",
-    fromString: c => Ok(emptyFieldParser(c)),
-    fromDb: Maybe
+    fromString: emptyFieldParser,
+    fromDb: maybeNull(Bool)
 };
 
 
@@ -133,13 +136,13 @@ const parseNewEmployeeInput = newEmployeeInput => {
 	return doEither(parsedValue
 		      , valueOk => doEither(
 			  soFar
-			  , soFarOk => Ok(field.update(soFarOk, valueOk))
+			  , soFarOk => Ok(id)(field.update(soFarOk, valueOk))
 			  , soFarErr => soFar)
 		      , valueErr => doEither(
 			  soFar
-			  , soFarOk => Err([valueErr])
-			  , soFarErr => Err([...soFarErr, valueErr])));
-    }, Just(parsedValues));
+			  , soFarOk => Err(id)([valueErr])
+			  , soFarErr => Err(id)([...soFarErr, valueErr])));
+    }, Just(id)(parsedValues));
 };
 
 
