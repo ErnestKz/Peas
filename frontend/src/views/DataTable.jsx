@@ -3,23 +3,34 @@ import ReactDOM from 'react-dom/client';
 
 import { employeeTableFields, employeeToString } from '../employee/employee.js';
 
-const DataTable = ( { employees } ) => {
+const DataTable = ( { employees, tableConfig } ) => {
     return (
 	<table className="dbTable">
-	    <thead><DataHeaders /></thead>
-	    <tbody><DataRows employees={ employees } /></tbody>
+	    <thead><DataHeaders tableConfig={tableConfig} /></thead>
+	    <tbody><DataRows employees={ employees } tableConfig={tableConfig}/></tbody>
 	</table>)
 };
 
-const DataHeaders = () => {
-    const columnHeaders = employeeTableFields
+const DataHeaders = ( { tableConfig } ) => {
+    const columnHeaders = tableConfig
 	.map( field => field.toTableHeader(field) )
-    return <tr> { columnHeaders } </tr>
+    return <tr> { columnHeaders.flat() } </tr>
 };
 
-const DataRows = ( { employees } ) => {
+
+/* skills_dict[skill_id] 
+field.project will have to:
+   project into the id, wi
+
+   will have to pass in a skill field into employees which
+   projects into the dictionaory 
+
+   
+*/
+
+const DataRows = ( { employees, tableConfig } ) => {
     return employees.map(employee => {
-	const trData = employeeTableFields
+	const trData = tableConfig
 	    .map( field => field.toTableElement(field.project(employee), field))
 	return (<tr>{ trData.flat() }</tr>)
     });

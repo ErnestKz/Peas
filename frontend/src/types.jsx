@@ -66,7 +66,6 @@ const Ok = a => e => ({ _CONS: "_OK"
 		      , _VALUE: a(e)});
 
 const doEither = (either, okFn, errFn) => {
-    console.log(either)
     if (either._CONS == "_ERR"){
 	return errFn(either._VALUE);
     } else {

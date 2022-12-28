@@ -5,6 +5,12 @@ import { Just, Nothing, Maybe,
 	 id, const_ }
 from '../types.js';
 
+import { skillTableFields
+       , skillIdField
+       , skillNameField
+       , skillDescriptionField
+       , skillsToDict } from './skill.js';
+
 import React from 'react';
 
 const constructRecord = f => employeeTableFields
@@ -66,6 +72,18 @@ const toTableElementSingle = (val, field) => {
     return (<td> { renderedValue } </td>)
 };
 
+
+const skillViewColumns = [ skillNameField, skillDescriptionField ];
+
+const toTableHeaderMultiSkill = _ => skillViewColumns
+    .map( field =>  field.toTableHeader(field) )
+
+const toTableElementMultiSkill = (val, _) => {
+    return skillViewColumns.map(field => {
+	return field.toTableElement(val, field)
+    });
+};
+
 const firstnameField = {
     name: "Firstname",
     project: r => r.firstname,
@@ -118,6 +136,36 @@ const emailField = {
     fromDb: maybeNull(String)
 };
 
+const skillField = {
+    name: "Skill",
+    project: r => r.skill,
+    update: (r, v) => ({...r, skill: v}),
+    inputType: "text",
+
+    toTableHeader: toTableHeaderMultiSkill,
+    toTableElement: toTableElementMultiSkill,
+    
+    fromString: id,
+    fromDb: String
+};
+
+const skillFieldDynamic = skills => {
+    const skillsDict = skillsToDict(skills);
+    
+    return ({
+	name: "Skill",
+	project: r => skillsDict[r.skill],
+	update: (r, v) => ({...r, skill: v}),
+	inputType: "text",
+	
+	toTableHeader: toTableHeaderMultiSkill,
+	toTableElement: toTableElementMultiSkill,
+	
+	fromString: id,
+	fromDb: String
+    });
+}
+
 const activeField = {
     name: "Active",
     project: r => r.active,
@@ -131,13 +179,21 @@ const activeField = {
     fromDb: maybeNull(Bool)
 };
 
-
+const employeeTableFieldsDynamic = skills =>(
+    [ firstnameField
+    , lastnameField
+    , dobField
+    , emailField
+    , skillFieldDynamic(skills)
+	/* , activeField */
+]);
 
 const employeeTableFields =
     [ firstnameField
     , lastnameField
     , dobField
     , emailField
+    , skillField
 	/* , activeField */
     ];
 
@@ -164,6 +220,7 @@ const parseNewEmployeeInput = newEmployeeInput => {
 
 
 export { employeeTableFields,
+	 employeeTableFieldsDynamic,
 	 constructRecord,
 	 employeeFromDb, employeeToString, employeeToDb, 
 	 inputTypeToInitialValue,

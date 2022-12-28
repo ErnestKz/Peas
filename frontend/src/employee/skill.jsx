@@ -5,7 +5,7 @@ import { Just, Nothing, Maybe,
 	 id, const_ }
 from '../types.js';
 
-
+import React from 'react';
 
 
 const constructSkillRecord = f => skillTableFields
@@ -34,11 +34,9 @@ const toTableHeaderSingle = field => {
 };
 
 const toTableElementSingle = (val, field) => {
-    const renderedValue = skillsToString(val)
+    const renderedValue = skillsToString(field.project(val))
     return (<td> { renderedValue } </td>)
 };
-
-
 
 const skillIdField = {
     name: "Skill ID",
@@ -80,4 +78,17 @@ const skillTableFields = [ skillIdField
 			 , skillNameField
 			 , skillDescriptionField ];
 
-export { skillFromDb };
+const skillsToDict = skills => skills
+    .reduce((acc, skill) => {
+	acc[skill.skill_id] = skill;
+	return acc;
+    }, {});
+
+
+
+export { skillFromDb
+       , skillIdField
+       , skillNameField
+       , skillDescriptionField
+       , skillsToString
+       , skillsToDict };

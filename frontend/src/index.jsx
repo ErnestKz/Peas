@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 
 import { constructRecord,
 	 inputTypeToInitialValue,
-	 parseNewEmployeeInput, employeeToDb } from './employee/employee.js';
+	 parseNewEmployeeInput, employeeToDb
+       , employeeTableFieldsDynamic } from './employee/employee.js';
 
 import { getSkillsCommandIO
        , getEmployeesCommandIO
@@ -115,6 +116,9 @@ const App = ( ) => {
      * });
      */
     const newEmployeeValidation = parseNewEmployeeInput(appState.newEmployeeInput);
+    
+    const tableConfig = employeeTableFieldsDynamic( appState.skills );
+    
     return (
 	<div className="App">
 	    <button onClick = { startGetEmployeesCommandIO } >
@@ -123,16 +127,17 @@ const App = ( ) => {
 	    <button onClick = { startGetSkillsCommandIO } >
 		Skills
 	    </button>
-	    <DataTable employees = { appState.employees } />
+	    <DataTable employees = { appState.employees }
+		       tableConfig ={ tableConfig }/>
 	    <RootEffectStacks effectStackHistory = { appState.effectStackHistory } />
 	    
-	    <DataTableNewRowForm
-	    newEmployeeInput= { appState.newEmployeeInput }
-	    setNewEmployeeInput = { setNewEmployeeInput }/>
-	    
-	    <DataTableNewRowFormValidation
-	    newEmployee={ startNewEmployeeCommandIO }
-	    newEmployeeValidation = { newEmployeeValidation }/>
+	    {/* <DataTableNewRowForm
+		newEmployeeInput= { appState.newEmployeeInput }
+		setNewEmployeeInput = { setNewEmployeeInput }/>
+		
+		<DataTableNewRowFormValidation
+		newEmployee={ startNewEmployeeCommandIO }
+		newEmployeeValidation = { newEmployeeValidation }/> */}
 	</div>);
 };
 
