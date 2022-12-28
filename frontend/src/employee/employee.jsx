@@ -5,6 +5,8 @@ import { Just, Nothing, Maybe,
 	 id, const_ }
 from '../types.js';
 
+import { DropDownMenu } from '../ui/DropDownMenu.js'
+
 import { skillTableFields
        , skillIdField
        , skillNameField
@@ -58,6 +60,7 @@ const inputTypeToInitialValue = (inputType) => {
 	    throw new Error('Initial value for ' + inputType + ' not provided');
     }
 };
+
 // String -> Either String (Maybe String)
 const emptyFieldParser = s => {
     return Ok(Maybe(String))(s == "" ? Nothing : Just(String)(s))
@@ -84,16 +87,20 @@ const toTableElementMultiSkill = (val, _) => {
     });
 };
 
+
+
 const firstnameField = {
     name: "Firstname",
     project: r => r.firstname,
     update: (r, v) => ({...r, firstname: v}),
-    inputType: "text",
+
+    toInputElement: skillFieldDropdown(skillsDict),
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
     
     fromString: emptyFieldParser,
+    
     fromDb: maybeNull(String)
 };
 
@@ -101,7 +108,9 @@ const lastnameField = {
     name: "Lastname",
     project: r => r.lastname,
     update: (r, v) => ({...r, lastname: v}),
-    inputType: "text",
+
+    
+    toInputElement: skillFieldDropdown(skillsDict),
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
@@ -114,7 +123,8 @@ const dobField = {
     name: "Date of Birth",
     project: r => r.dob,
     update: (r, v) => ({...r, dob: v}),
-    inputType: "date",
+    
+    toInputElement: skillFieldDropdown(skillsDict),
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
@@ -127,7 +137,8 @@ const emailField = {
     name: "Email",
     project: r => r.email,
     update: (r, v) => ({...r, email: v}),
-    inputType: "email",
+    
+    toInputElement: skillFieldDropdown(skillsDict),
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
@@ -140,13 +151,24 @@ const skillField = {
     name: "Skill",
     project: r => r.skill,
     update: (r, v) => ({...r, skill: v}),
-    inputType: "text",
 
     toTableHeader: toTableHeaderMultiSkill,
     toTableElement: toTableElementMultiSkill,
     
     fromString: id,
     fromDb: String
+};
+
+const skillFieldDropdown = skillsDict => (newEmployeeInput, setNewEmployeeInput) => {
+    return (<DropDownMenu
+	onChange= { e => setNewEmployeeInput(oe => (
+	    { ...oe, skill: e.target.value})) }
+	
+	possibleOptions={ Object.keys(skillsDict) }
+	
+	activeOption= { newEmployeeInput.skill }
+	renderOptionFn= { x => skillsDict[x].skill_name }
+	/>);
 };
 
 const skillFieldDynamic = skills => {
@@ -156,24 +178,30 @@ const skillFieldDynamic = skills => {
 	name: "Skill",
 	project: r => skillsDict[r.skill],
 	update: (r, v) => ({...r, skill: v}),
-	inputType: "text",
 	
 	toTableHeader: toTableHeaderMultiSkill,
 	toTableElement: toTableElementMultiSkill,
+
+	toInputElement: skillFieldDropdown(skillsDict),
 	
 	fromString: id,
 	fromDb: String
     });
 }
 
+const skillFieldDropdown = (newEmployeeInput, setNewEmployeeInput) => {
+    return null;
+};
+
 const activeField = {
     name: "Active",
     project: r => r.active,
     update: (r, v) => ({...r, active: v}),
-    inputType: "radio",
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
+
+    toInputElement: 
     
     fromString: emptyFieldParser,
     fromDb: maybeNull(Bool)

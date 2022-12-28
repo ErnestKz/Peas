@@ -17,7 +17,9 @@ import { DataTable } from './views/DataTable.js'
 
 import { RootEffectStacks } from './views/EffectStack.js'
 
-import { const_ } from './types.js'
+import { DropDownMenu } from './ui/DropDownMenu.js'
+
+import { const_, id } from './types.js'
 
 
 const mkSetSubState = (setState, lens) => {
@@ -121,6 +123,15 @@ const App = ( ) => {
     
     return (
 	<div className="App">
+	    <DropDownMenu
+		onChange={id}
+		possibleOptions={([1, 2, 3, 4, 5])}
+		activeOption={3}
+		renderOptionFn={x=>x.toString() }
+	    />
+
+	    
+	    
 	    <button onClick = { startGetEmployeesCommandIO } >
 		Click
 	    </button>
