@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { constructRecord,
 	 inputTypeToInitialValue,
 	 parseNewEmployeeInput, employeeToDb } from './employee/employee.js';
 
-import { getEmployeesCommandIO, newEmployeeCommandIO } from './effects.js';
+import { getSkillsCommandIO
+       , getEmployeesCommandIO
+       , newEmployeeCommandIO } from './effects.js';
 
 import { DataTableNewRowForm
        , DataTableNewRowFormValidation } from './views/NewRowForm.js'
@@ -35,6 +37,9 @@ const employeesLens =
     { project: s => s.employees
     , update: (s, n) => ({ ...s, employees: n })};
 
+const skillsLens =
+    { project: s => s.skills
+    , update: (s, n) => ({ ...s, skills: n })};
 
 const effectStackHistoryLens =
     { project: s => s.effectStackHistory
@@ -42,6 +47,7 @@ const effectStackHistoryLens =
 
 const initialAppState = {
     employees: [],
+    skills: [],
     newEmployeeInput: constructRecord(field => (
 	inputTypeToInitialValue(field.inputType))),
     effectStackHistory: []
@@ -81,6 +87,7 @@ const App = ( ) => {
     const [ appState, setAppState ] = useState(initialAppState);
     const setNewEmployeeInput = mkSetSubState(setAppState, newEmployeeLens);
     const setEmployees = mkSetSubState(setAppState, employeesLens)
+    const setSkills = mkSetSubState(setAppState, skillsLens)
     const setEffectStackHistory = mkSetSubState(setAppState, effectStackHistoryLens);
     const addNewEffectStack = mkAddNewEffectStack(setEffectStackHistory)
 
@@ -97,22 +104,35 @@ const App = ( ) => {
 	    .then(employees => setEmployees(const_(employees)));
     };
 
+    const startGetSkillsCommandIO = () => {
+	const setStack = addNewEffectStack();
+	getSkillsCommandIO(setStack, "Init - Getting Skills")(null)
+	    .then(skills => setSkills(const_(skills)));
+    };
+    
+    /* useEffect(() => {
+       startGetSkillsCommandIO();
+     * });
+     */
     const newEmployeeValidation = parseNewEmployeeInput(appState.newEmployeeInput);
     return (
 	<div className="App">
 	    <button onClick = { startGetEmployeesCommandIO } >
 		Click
 	    </button>
+	    <button onClick = { startGetSkillsCommandIO } >
+		Skills
+	    </button>
 	    <DataTable employees = { appState.employees } />
 	    <RootEffectStacks effectStackHistory = { appState.effectStackHistory } />
 	    
 	    <DataTableNewRowForm
-		newEmployeeInput= { appState.newEmployeeInput }
-		setNewEmployeeInput = { setNewEmployeeInput }/>
+	    newEmployeeInput= { appState.newEmployeeInput }
+	    setNewEmployeeInput = { setNewEmployeeInput }/>
 	    
 	    <DataTableNewRowFormValidation
-		newEmployee={ startNewEmployeeCommandIO }
-		newEmployeeValidation = { newEmployeeValidation }/>
+	    newEmployee={ startNewEmployeeCommandIO }
+	    newEmployeeValidation = { newEmployeeValidation }/>
 	</div>);
 };
 

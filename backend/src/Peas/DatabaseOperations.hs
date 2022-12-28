@@ -137,3 +137,29 @@ authenticateUser userLogin = do
   conn <- ask
   [ Only b ] <- liftIO $ query conn deleteEmployeeQuery [password userLogin, username userLogin]
   pure b
+
+
+-- Get Skills
+
+getSkillsQuery :: Query
+getSkillsQuery
+  = "SELECT skill_id, skill_name, skill_description"
+  <> " FROM skill_table;"
+
+data Skill = Skill
+  { skill_id :: UUID
+  , skill_name :: Text
+  , skill_description :: Maybe Text
+  }
+  deriving ( Show, Generic )
+
+instance ToRow (Skill)
+instance FromRow (Skill)
+
+instance ToJSON (Skill)
+instance FromJSON (Skill)
+
+getSkills :: DB [ Skill ]
+getSkills = do
+  conn <- ask
+  liftIO $ query_ conn getSkillsQuery

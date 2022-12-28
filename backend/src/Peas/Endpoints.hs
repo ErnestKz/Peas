@@ -13,7 +13,8 @@ type PrivateEmployeeEndpoints
   = "employee" :> Auth '[JWT] () :> EmployeeEndpoints
 
 type PublicEmployeeEndpoints
-  = "employee" :>  EmployeeEndpoints  
+  = "skills" :> Get '[JSON] [Skill]
+  :<|>  "employee" :>  EmployeeEndpoints
 
 type EmployeeEndpoints = 
   (Get '[JSON] [Employee]
@@ -25,7 +26,8 @@ type EmployeeEndpoints =
          :> PutNoContent)
     
    :<|> (Capture "employeeid" Text
-          :> DeleteNoContent))
+          :> DeleteNoContent)
+  )
 {-
 type AuthenticateEndpoint
   = "authenticate"

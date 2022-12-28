@@ -24,26 +24,6 @@ const employeeToStringDispatchMap =
       "bool": b => b.toString()
     };
 
-/* const employeeToRender */
-
-/* and perhaps an employee record type*/
-
-/*
-   looks like ill need to support record types
- */
-
-/*
- can define individual fields
-
-
-*/
-
-/* ["_SKILL" , val]
- * {
- *     skill_id : string,
- *     skill_name: string,
- *     skill_description: Maybe
- * } */
 
 const employeeFieldToDb = x => dispatchTypeclass(employeeToDbDispatchMap, x);
 

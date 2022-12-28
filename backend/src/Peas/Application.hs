@@ -34,10 +34,12 @@ application dbConn = serve applicationEndpoints (server dbConn)
 server :: Connection -> Server ApplicationEndpoints
 server dbConn
   = pageEndpointHandler
+  :<|> getSkillsHandler dbConn
   :<|> getEmployeeHandler dbConn
   :<|> newEmployeeHandler dbConn
   :<|> updateEmployeeHandler dbConn
   :<|> deleteEmployeeHandler dbConn
+
 
 getEmployeeHandler :: Connection -> Handler [Employee]
 getEmployeeHandler dbConn = liftIO $ runReaderT getEmployees dbConn
@@ -51,6 +53,9 @@ updateEmployeeHandler dbConn = undefined
 
 deleteEmployeeHandler :: Connection -> Text -> Handler NoContent
 deleteEmployeeHandler dbConn = undefined
+
+getSkillsHandler :: Connection -> Handler [ Skill ]
+getSkillsHandler dbConn = liftIO $ runReaderT getSkills dbConn
 
 {-
 module that defines the interface to the database

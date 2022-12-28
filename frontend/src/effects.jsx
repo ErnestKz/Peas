@@ -1,5 +1,6 @@
 import { const_ } from './types.js';
 import { employeeFromDb } from './employee/employee.js';
+import { skillFromDb } from './employee/skill.js';
 
 const fetchResponseError = (url, req) => {
     const okFn = r => r.ok ? r.json() : Promise.reject(r);
@@ -45,6 +46,19 @@ const getEmployeesIORequest = (_) => {
 
 
 
+const skillsRoute = baseUrl + "skills";
+
+const getSkillsReq = {
+    method: "GET" 
+};
+
+const getSkillsIORequest = (_) => {
+    return fetchResponseError(skillsRoute, getSkillsReq)
+	.then(e => e.map(skillFromDb))
+};
+
+
+
 const newEmployeeReq = data => ({
     method: "POST",
     headers: { 'Content-Type': 'application/json' },
@@ -80,8 +94,6 @@ const mkGetEmployeesWithEffect = mkCommandWithEff(
     mkGetEmployeesReceiveErrMessage);
 
 const getEmployeesCommandIO = mkGetEmployeesWithEffect(getEmployeesIORequest);
-// forgot to put stuff inot it
-
 
 
 
@@ -110,4 +122,32 @@ const mkNewEmployeeeWithEffect = mkCommandWithEff(
 
 const newEmployeeCommandIO = mkNewEmployeeeWithEffect(newEmployeeIORequest);
 
-export { getEmployeesCommandIO, newEmployeeCommandIO }
+
+
+
+const mkGetSkillsSendMessage = a => {
+    const message = { eventType: "GetSkillsSend",
+		      info: a };
+    return message;
+};
+
+const mkGetSkillsReceiveOkMessage = a => {
+    const message = { eventType: "GetSkillsReceiveOk",
+		      info: a };
+    return message;
+};
+
+const mkGetSkillsReceiveErrMessage = a => {
+    const message = { eventType: "GetSkillsReceiveErr",
+		      info: a };
+    return message;
+};
+
+const mkGetSkillseWithEffect = mkCommandWithEff(
+    mkGetSkillsSendMessage,
+    mkGetSkillsReceiveOkMessage,
+    mkGetSkillsReceiveErrMessage);
+
+const getSkillsCommandIO = mkGetSkillseWithEffect(getSkillsIORequest);
+
+export { getEmployeesCommandIO, newEmployeeCommandIO, getSkillsCommandIO }
