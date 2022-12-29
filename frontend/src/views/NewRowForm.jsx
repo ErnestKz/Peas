@@ -4,21 +4,20 @@ import ReactDOM from 'react-dom/client';
 import { doEither } from '../types.js';
 import { employeeTableFields, employeeToString } from '../employee/employee.js';
 
-const DataTableNewRowForm = ( { newEmployeeInput, setNewEmployeeInput } ) => {
-    const renderFormField = field => {
-	const updateFieldHandler = e => (
-	    setNewEmployeeInput(s => field.update(s, e.target.value)));
-	return (
-	    <li> <p> { field.name }:</p>
-		<input
-		    type = { field.inputType }
-		    value = { field.project(newEmployeeInput) }
-		    onChange = { updateFieldHandler } >
-		</input>
-	    </li>)
+import { mkSetSubState } from '../lens.js';
+
+const DataTableNewRowForm = (
+    { employeeTableFields, newEmployeeInput, setNewEmployeeInput } ) => {
+	
+	const inputs = employeeTableFields.map( field => {
+	    const setValue = mkSetSubState(setNewEmployeeInput, field);
+	    const value = field.project(newEmployeeInput);
+	    return field.toInputElement(value, setValue);
+	});
+	
+	return (<ul> { inputs } </ul>)
     };
-    return (<ul> { employeeTableFields.map(renderFormField) } </ul>)
-};
+
 
 const DataTableNewRowFormValidation = ( { newEmployeeValidation,
 					  newEmployee } ) => {

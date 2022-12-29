@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Just, Nothing, Maybe,
 	 Err, Ok, doEither, maybeNull,
 	 Bool, 
@@ -7,116 +9,82 @@ from '../types.js';
 
 import { DropDownMenu } from '../ui/DropDownMenu.js'
 
+import { constructRecord
+       , toString
+       , fromDb
+       , toTableHeaderSingle
+       , toTableElementSingle }
+from './common.js';
+
 import { skillTableFields
        , skillIdField
        , skillNameField
        , skillDescriptionField
        , skillsToDict } from './skill.js';
 
-import React from 'react';
-
-const constructRecord = f => employeeTableFields
-    .reduce((acc, field) => field.update(acc, f(field)), {});
-
-const employeeFromDb = dbEmployee => (
-    constructRecord(field => field.fromDb(field.project(dbEmployee))));
-
-// TODO: rename this to employeeFieldToString
-const employeeToString = x => dispatchTypeclass(employeeToStringDispatchMap, x);
-
-const employeeToStringDispatchMap =
-    { "_JUST": val => employeeToString(val._VALUE),
-      "_NOTHING": _ => "EMPTY",
-      "string": id,
-      "number": x => x.toString(),
-      "bool": b => b.toString()
-    };
-
-
-const employeeFieldToDb = x => dispatchTypeclass(employeeToDbDispatchMap, x);
-
-const employeeToDb = employee => {
-    const f = field => employeeFieldToDb(field.project(employee));
-    return constructRecord(f);
-};
-
-const employeeToDbDispatchMap =
-    { "_JUST": val => employeeToString(val._VALUE),
-      "_NOTHING": _ => null,
-      "string": id,
-      "number": id,
-      "bool": id
-    };
-
-const inputTypeToInitialValue = (inputType) => {
-    switch (inputType) {
-	case "text":
-	    return ""
-	case "date":
-	    return ""
-	case "email":
-	    return ""
-	default:
-	    throw new Error('Initial value for ' + inputType + ' not provided');
-    }
-};
 
 // String -> Either String (Maybe String)
 const emptyFieldParser = s => {
     return Ok(Maybe(String))(s == "" ? Nothing : Just(String)(s))
 };
 
-const toTableHeaderSingle = field => {
-    return (<th className="columnHead">{ field.name }</th>)
-};
 
-const toTableElementSingle = (val, field) => {
-    const renderedValue = employeeToString(val)
-    return (<td> { renderedValue } </td>)
-};
+// - input element will just be a text box
+//   - and what input parameters am i taking for the input?
+//   - (newEmployeeInput, setNewEmployeeInput), probably can generate
+//     the lenses for each field and hence the specialised lenses
+// - fromString, should be parseInput
+//    - parseInput can then verify if selection is part of enum
 
+// the name field can be factored out into the respective column
+// headers and input fields
 
-const skillViewColumns = [ skillNameField, skillDescriptionField ];
-
-const toTableHeaderMultiSkill = _ => skillViewColumns
-    .map( field =>  field.toTableHeader(field) )
-
-const toTableElementMultiSkill = (val, _) => {
-    return skillViewColumns.map(field => {
-	return field.toTableElement(val, field)
-    });
-};
+// each field can be a function with options that determines how
+// the field description should be constructed
+//const mkField = (name, lens) => {
+//};
 
 
+const textInputField = name => (value, setValue)  => (
+    <li>
+	<p> { name } :</p>
+	<input type ="text"
+	       value = { value }
+	       onChange = { e => setValue(const_(e.target.value)) } >
+	</input>
+    </li>
+);
 
 const firstnameField = {
     name: "Firstname",
+    
     project: r => r.firstname,
     update: (r, v) => ({...r, firstname: v}),
 
-    toInputElement: skillFieldDropdown(skillsDict),
+    fromDb: maybeNull(String)
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
     
-    fromString: emptyFieldParser,
-    
-    fromDb: maybeNull(String)
+    toInputElement: skillFieldDropdown(skillsDict),
+    parseInput: emptyFieldParser,
 };
 
 const lastnameField = {
     name: "Lastname",
+    
     project: r => r.lastname,
     update: (r, v) => ({...r, lastname: v}),
 
-    
-    toInputElement: skillFieldDropdown(skillsDict),
+    fromDb: maybeNull(String)
 
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
     
-    fromString: emptyFieldParser,
-    fromDb: maybeNull(String)
+    toInputElement: skillFieldDropdown(skillsDict),
+    parseInput: emptyFieldParser,
+
+
 };
 
 const dobField = {
@@ -147,29 +115,26 @@ const emailField = {
     fromDb: maybeNull(String)
 };
 
-const skillField = {
-    name: "Skill",
-    project: r => r.skill,
-    update: (r, v) => ({...r, skill: v}),
 
-    toTableHeader: toTableHeaderMultiSkill,
-    toTableElement: toTableElementMultiSkill,
-    
-    fromString: id,
-    fromDb: String
+const skillViewColumns = [ skillNameField, skillDescriptionField ];
+
+const toTableHeaderMultiSkill = _ => skillViewColumns
+    .map( field => field.toTableHeader(field) )
+
+const toTableElementMultiSkill = (val, _) => {
+    return skillViewColumns.map(field => {
+	return field.toTableElement(val, field)
+    });
 };
 
-const skillFieldDropdown = skillsDict => (newEmployeeInput, setNewEmployeeInput) => {
-    return (<DropDownMenu
-	onChange= { e => setNewEmployeeInput(oe => (
-	    { ...oe, skill: e.target.value})) }
-	
-	possibleOptions={ Object.keys(skillsDict) }
-	
-	activeOption= { newEmployeeInput.skill }
-	renderOptionFn= { x => skillsDict[x].skill_name }
-	/>);
-};
+const skillFieldDropdownNew = skillsDict => (skill, setSkill) => (
+    <li><DropDownMenu
+	onChange = { e => setSkill(const_(e.target.value)) }
+	activeOption = { skill }
+	possibleOptions = { Object.keys(skillsDict) }
+	renderOptionFn = { x => skillsDict[x].skill_name }
+	/>
+    </li>);
 
 const skillFieldDynamic = skills => {
     const skillsDict = skillsToDict(skills);
@@ -184,13 +149,9 @@ const skillFieldDynamic = skills => {
 
 	toInputElement: skillFieldDropdown(skillsDict),
 	
-	fromString: id,
+	validate: id,
 	fromDb: String
     });
-}
-
-const skillFieldDropdown = (newEmployeeInput, setNewEmployeeInput) => {
-    return null;
 };
 
 const activeField = {
@@ -203,11 +164,12 @@ const activeField = {
 
     toInputElement: 
     
-    fromString: emptyFieldParser,
+    // fromString: emptyFieldParser,
     fromDb: maybeNull(Bool)
 };
 
-const employeeTableFieldsDynamic = skills =>(
+
+const employeeTableFieldsDynamic = skills => (
     [ firstnameField
     , lastnameField
     , dobField
@@ -216,14 +178,6 @@ const employeeTableFieldsDynamic = skills =>(
 	/* , activeField */
 ]);
 
-const employeeTableFields =
-    [ firstnameField
-    , lastnameField
-    , dobField
-    , emailField
-    , skillField
-	/* , activeField */
-    ];
 
 // Either [String] Employee
 const parseNewEmployeeInput = newEmployeeInput => {

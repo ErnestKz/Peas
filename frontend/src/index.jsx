@@ -21,16 +21,8 @@ import { DropDownMenu } from './ui/DropDownMenu.js'
 
 import { const_, id } from './types.js'
 
+import { mkSetSubState } from './lens.js'
 
-const mkSetSubState = (setState, lens) => {
-    const setSubState = ( subStateUpdateFn ) => {
-	return setState( oldState => {
-	    const newSubState = subStateUpdateFn(lens.project(oldState))
-	    return lens.update(oldState, newSubState)
-	});
-    }
-    return setSubState;
-};
 
 const newEmployeeLens =
     { project: s => s.newEmployeeInput

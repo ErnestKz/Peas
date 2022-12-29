@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Just, Nothing, Maybe,
 	 Err, Ok, doEither, maybeNull,
 	 Bool, 
@@ -5,72 +7,50 @@ import { Just, Nothing, Maybe,
 	 id, const_ }
 from '../types.js';
 
-import React from 'react';
+import { constructRecord
+       , toString
+       , fromDb
+       , toTableHeaderSingle
+       , toTableElementSingle }
+from './common.js';
 
-
-const constructSkillRecord = f => skillTableFields
-    .reduce((acc, field) => field.update(acc, f(field)), {});
-
-const skillFromDb = skill => (
-    constructSkillRecord(field => field.fromDb(field.project(skill))));
-
-
-
-const skillsToString = x => dispatchTypeclass(skillsToStringDispatchMap, x);
-
-const skillsToStringDispatchMap =
-    { "_JUST": val => skillsToString(val._VALUE),
-      "_NOTHING": _ => "EMPTY",
-      "string": id,
-      "number": x => x.toString(),
-      "bool": b => b.toString()
-    };
-
-
-
-
-const toTableHeaderSingle = field => {
-    return (<th className="columnHead">{ field.name }</th>)
-};
-
-const toTableElementSingle = (val, field) => {
-    const renderedValue = skillsToString(field.project(val))
-    return (<td> { renderedValue } </td>)
-};
 
 const skillIdField = {
     name: "Skill ID",
+    
     project: r => r.skill_id,
     update: (r, v) => ({...r, skill_id: v}),
 
+    fromDb: String
+
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
-    
-    fromDb: String
 };
 
 
 const skillNameField = {
     name: "Skill Name",
+    
     project: r => r.skill_name,
     update: (r, v) => ({...r, skill_name: v}),
 
+    fromDb: String
+
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
-    
-    fromDb: String
 };
 
 
 const skillDescriptionField = {
     name: "Skill Description",
+    
     project: r => r.skill_description,
     update: (r, v) => ({...r, skill_description: v}),
 
+    fromDb: maybeNull(String)
+
     toTableHeader: toTableHeaderSingle,
     toTableElement: toTableElementSingle,
-    
-    fromDb: maybeNull(String)
 };
 
 
@@ -83,8 +63,6 @@ const skillsToDict = skills => skills
 	acc[skill.skill_id] = skill;
 	return acc;
     }, {});
-
-
 
 export { skillFromDb
        , skillIdField
