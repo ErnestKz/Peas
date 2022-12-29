@@ -113,6 +113,16 @@ const mkFieldTypeA = (name, lens, fromDb, inputType, inputParse) => {
     return totalConfig;
 };
 
+const mkFieldTypeB = (name, lens, fromDb) => {
+    const tableConfig = tableConfigSingleColumn(name);
+    const totalConfig = {
+	...tableConfig,
+	...lens,
+	fromDb: fromDb
+    };
+    return totalConfig;
+};
+
 export { constructRecord
        , toString
        , toDb
@@ -121,5 +131,6 @@ export { constructRecord
        , fromDb
        , emptyFieldParser
        , mkFieldTypeA
+       , mkFieldTypeB
        , mkField
        , tableConfigSingleColumn };

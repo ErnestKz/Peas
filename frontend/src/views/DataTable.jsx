@@ -18,16 +18,6 @@ const DataHeaders = ( { tableConfig } ) => {
 };
 
 
-/* skills_dict[skill_id] 
-field.project will have to:
-   project into the id, wi
-
-   will have to pass in a skill field into employees which
-   projects into the dictionaory 
-
-   
-*/
-
 const DataRows = ( { employees, tableConfig } ) => {
     return employees.map(employee => {
 	const trData = tableConfig
