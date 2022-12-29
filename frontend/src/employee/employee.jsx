@@ -15,7 +15,8 @@ import { constructRecord
        , toTableHeaderSingle
        , toTableElementSingle
 
-       , mkFieldOneToOne
+       , mkFieldTypeA
+       , mkField
        , emptyFieldParser }
 from './common.js';
 
@@ -62,14 +63,14 @@ const emailField = mkFieldTypeA(
 );
 
 
-const activeDropDownInputConfig =
+const activeDropDownInputConfig = (
     { toInputElement: ((value, setValue) => (
 	<li> Active: { value } </li>
     ))
     , inputParse: id });
 
 const activeField = mkField(
-    , ({ project: r => r.active
+    ({ project: r => r.active
        , update: (r, v) => ({...r, active: v})})
     , maybeNull(Bool)
     , tableConfigSingleColumn("Active")
@@ -108,7 +109,7 @@ const skillDropDownInputConfig = skillsDict => {
 const skillFieldDynamic = skills => {
     const skillsDict = skillsToDict(skills);
     return mkField(
-	, ({ project: r => r.skill
+	({ project: r => r.skill
 	   , update: (r, v) => ({...r, skill: v})})
 	, String
 	, tableConfigSingleColumn("Skill")
@@ -129,30 +130,29 @@ const employeeTableFieldsDynamic = skills => (
 
 // need TODO this
 // Either [String] Employee
-const parseNewEmployeeInput = newEmployeeInput => {
+const parseNewEmployeeInput = (tableConfig, newEmployeeInput) => {
+    
     const parsedValues =
-	constructRecord(field => field.fromString(
-	    field.project(newEmployeeInput)));
-    console.log(parsedValues)
-    return employeeTableFields.reduce((soFar, field) => {
+	constructRecord(tableConfig,
+			field => field.inputParse(
+			    field.project(newEmployeeInput)));
+    
+    console.log("Parsed values: ", parsedValues)
+    return tableConfig.reduce((soFar, field) => {
 	const parsedValue = field.project(parsedValues);
-	console.log(parsedValue)
-	return doEither(parsedValue
-		      , valueOk => doEither(
-			  soFar
-			  , soFarOk => Ok(id)(field.update(soFarOk, valueOk))
-			  , soFarErr => soFar)
-		      , valueErr => doEither(
-			  soFar
-			  , soFarOk => Err(id)([valueErr])
-			  , soFarErr => Err(id)([...soFarErr, valueErr])));
+	return doEither(
+	    parsedValue
+	    , valueOk => doEither(
+		soFar
+		, soFarOk => Ok(id)(field.update(soFarOk, valueOk))
+		, soFarErr => soFar)
+	    , valueErr => doEither(
+		soFar
+		, soFarOk => Err(id)([valueErr])
+		, soFarErr => Err(id)([...soFarErr, valueErr])));
     }, Just(id)(parsedValues));
 };
 
 
-export { employeeTableFields,
-	 employeeTableFieldsDynamic,
-	 constructRecord,
-	 employeeFromDb, employeeToString, employeeToDb, 
-	 inputTypeToInitialValue,
+export { employeeTableFieldsDynamic,
 	 parseNewEmployeeInput }

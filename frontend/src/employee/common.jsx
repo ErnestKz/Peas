@@ -74,27 +74,24 @@ const mkField = (lens, fromDb, tableConfig, inputConfig) => {
     return totalConfig;
 };
 
-
 const tableConfigSingleColumn = name => {
-    const tableConfig = {
-	, toTableHeader: toTableHeaderSingle(name)
-	, toTableElement: toTableElementSingle
-    };
+    const tableConfig = { toTableHeader: toTableHeaderSingle(name)
+			, toTableElement: toTableElementSingle };
     return tableConfig 
 };
 
 const inputTypeToInputConfig = (name, inputType, inputParse) => {
     switch (inputType) {
 	case "text": return (
-	    { toInputElement: inputField(name, inputType),
+	    { toInputElement: inputField(name, inputType)
 	    , inputParse: inputParse });
 	    
 	case "date": return (
-	    { toInputElement: inputField(name, inputType),
+	    { toInputElement: inputField(name, inputType)
 	    , inputParse: inputParse });
 	    
 	case "email": return (
-	    { toInputElement: inputField(name, inputType),
+	    { toInputElement: inputField(name, inputType)
 	    , inputParse: inputParse });
 	default:
 	    throw new Error('No such input type config : ' + inputType);

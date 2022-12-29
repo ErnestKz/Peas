@@ -109,20 +109,13 @@ const App = ( ) => {
        startGetSkillsCommandIO();
      * });
      */
-    const newEmployeeValidation = parseNewEmployeeInput(appState.newEmployeeInput);
     
     const tableConfig = employeeTableFieldsDynamic( appState.skills );
-    
+
+    const newEmployeeValidation = parseNewEmployeeInput(tableConfig,
+							appState.newEmployeeInput);
     return (
 	<div className="App">
-	    <DropDownMenu
-		onChange={id}
-		possibleOptions={([1, 2, 3, 4, 5])}
-		activeOption={3}
-		renderOptionFn={x=>x.toString() }
-	    />
-
-	    
 	    
 	    <button onClick = { startGetEmployeesCommandIO } >
 		Click

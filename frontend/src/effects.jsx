@@ -1,6 +1,8 @@
 import { const_ } from './types.js';
+
+
 import { employeeFromDb } from './employee/employee.js';
-import { skillFromDb } from './employee/skill.js';
+import { skillFromDb } from './employee/common.js';
 
 const fetchResponseError = (url, req) => {
     const okFn = r => r.ok ? r.json() : Promise.reject(r);
