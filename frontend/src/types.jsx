@@ -9,22 +9,11 @@ const maybeNull = a => (e => {
     }
 });
 
-/* and this is like a encoder function*/
-/* encoder functions deal with raw values that have no functiosn */
-
-// so calling the type on the value, is like verification
-// and its effectively like an id function
-
-/*
-   type verification can even be monadic, returning a stack trace
-   of the verification
-
- */
 const Maybe = a => v => {
     const c = v._CONS;
     switch(c){
 	case '_JUST':
-	    return a(v);
+	    return ({...v ,_VALUE: a(v._VALUE)});
 	case '_NOTHING':
 	    return v;
 	default:
@@ -43,7 +32,7 @@ const String = e => {
 
 const Bool = e => {
     const t = (typeof e);
-    if (t == "bool"){
+    if (t == "boolean"){
 	return e;
     } else {
 	throw new Error('Bool type verifcation failed for value: ' + e)
@@ -76,21 +65,21 @@ const doEither = (either, okFn, errFn) => {
 function dispatchTypeclass ( dispatchMap, value ) {
     const constructor = value._CONS;
     if (constructor in dispatchMap) {
-	console.log("Constructor dispatch")
+	/* console.log("Constructor dispatch") */
 	return dispatchMap[constructor](value)
     } else if (constructor == undefined) {
 	// Check if dictionary
 	if (value.constructor == Object) {
-	    console.log("Dictioinary dispatch")
+	    /* console.log("Dictioinary dispatch") */
 	    return dispatchMap["Dict"](value)
 	}
 	if (Array.isArray(value)) {
-	    console.log("Array dispatch")
+	    /* console.log("Array dispatch") */
 	    return dispatchMap["Array"](value)
 	}
 	const valuetype = (typeof value);
 	if (valuetype in dispatchMap) {
-	    console.log("Valuetype dispatch")
+	    /* console.log("Valuetype dispatch") */
 	    return dispatchMap[valuetype](value);
 	}
     } else {
@@ -100,7 +89,19 @@ function dispatchTypeclass ( dispatchMap, value ) {
 };
 
 
-export { id, const_,
-	 Just, Nothing, Maybe, maybeNull, Bool,
-	 Err, Ok, doEither,
-	 dispatchTypeclass }
+export { id
+       , const_
+    
+       , Just
+       , Nothing
+       , Maybe
+       , maybeNull
+
+       , Bool
+       , String
+    
+       , Err
+       , Ok
+       , doEither
+    
+       , dispatchTypeclass };

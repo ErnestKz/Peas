@@ -1,9 +1,14 @@
-import { Just, Nothing, Maybe,
-	 Err, Ok, doEither, maybeNull,
-	 Bool, 
-	 dispatchTypeclass,
-	 id, const_ }
-from '../types.js';
+import { Just
+       , Nothing
+       , Maybe
+       , Err
+       , Ok
+       , doEither
+       , maybeNull
+       , Bool
+       , dispatchTypeclass
+       , id
+       , const_ } from '../types.js';
 
 import React from 'react';
 
@@ -11,13 +16,15 @@ const dictFmap = (f, r) => Object.fromEntries(Object.entries(r).map(([k, v]) => 
 
 const toString = x => dispatchTypeclass(dataTypeToStringDispatchMap, x);
 
+const boolToString = b => b ? "Yes" : "No";
+
 const dataTypeToStringDispatchMap =
     { "_JUST": val => toString(val._VALUE),
       "_NOTHING": _ => "EMPTY",
       "Dict": r => dictFmap(toString, r),
       "string": id,
       "number": x => x.toString(),
-      "bool": b => b.toString()
+      "boolean": boolToString
     };
 
 const toDb = x => dispatchTypeclass(toDbDispatchMap, x);
@@ -28,15 +35,20 @@ const toDbDispatchMap = {
     "Dict": r => dictFmap(toDb, r),
     "string": id,
     "number": id,
-    "bool": id
+    "boolean": id
 };
 
 const constructRecord = fields => f => fields
     .reduce((acc, field) => field.update(acc, f(field)), {});
 
+// fields require fromDb, and project
 const fromDb = fields => rawInput => {
     return (constructRecord(fields)(
 	field => field.fromDb(field.project(rawInput))));
+};
+
+const defaultValues = fields => {
+    return constructRecord(fields)(field => field.inputDefault);
 };
 
 const toTableHeaderSingle = name => {
@@ -84,14 +96,17 @@ const inputTypeToInputConfig = (name, inputType, inputParse) => {
     switch (inputType) {
 	case "text": return (
 	    { toInputElement: inputField(name, inputType)
+	    , inputDefault: ""
 	    , inputParse: inputParse });
 	    
 	case "date": return (
 	    { toInputElement: inputField(name, inputType)
+	    , inputDefault: ""
 	    , inputParse: inputParse });
 	    
 	case "email": return (
 	    { toInputElement: inputField(name, inputType)
+	    , inputDefault: ""
 	    , inputParse: inputParse });
 	default:
 	    throw new Error('No such input type config : ' + inputType);
@@ -120,12 +135,20 @@ const mkFieldTypeB = (name, lens, fromDb) => {
     return totalConfig;
 };
 
+const prepend_new = r => {
+    const newEntries = (Object.entries(r).map(([k, v]) => ["new_" + k, v]));
+    return Object.fromEntries(newEntries);
+};
+
+
 export { constructRecord
        , toString
        , toDb
+       , prepend_new
        , toTableHeaderSingle
        , toTableElementSingle
        , fromDb
+       , defaultValues
        , emptyFieldParser
        , mkFieldTypeA
        , mkFieldTypeB

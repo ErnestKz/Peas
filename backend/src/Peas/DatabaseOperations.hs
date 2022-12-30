@@ -45,14 +45,14 @@ getEmployees = do
 postEmployeeQuery :: Query
 postEmployeeQuery
   = "insert into employees_table (firstname, lastname, dob, email, skill_level, active)"
-  <> "values (?)"
+  <> "values (?, ?, ?, ?, ?, ?)"
 
 data NewEmployee = NewEmployee
   { new_firstname :: Maybe Text
   , new_lastname :: Maybe Text
   , new_dob :: Maybe Day
   , new_email :: Maybe Text
-  , new_skill_id :: UUID
+  , new_skill :: UUID
   , new_active :: Maybe Bool }
   deriving ( Show, Generic )
 
@@ -87,7 +87,7 @@ data UpdateEmployee = UpdateEmployee
   , up_lastname :: Maybe Text
   , up_dob :: Maybe Day
   , up_email :: Maybe Text
-  , up_skill_id :: UUID
+  , up_skill :: UUID
   , up_active :: Maybe Bool }
   deriving ( Show, Generic )
 

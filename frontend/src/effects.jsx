@@ -1,14 +1,14 @@
 import { const_ } from './types.js';
 
-
-import { employeeFromDb } from './employee/employee.js';
-import { skillFromDb } from './employee/common.js';
+import { employeeFromDb } from './fields/employee.js';
+import { skillFromDb } from './fields/skill.js';
 
 const fetchResponseError = (url, req) => {
-    const okFn = r => r.ok ? r.json() : Promise.reject(r);
+    const okFn = r => r.ok ? r : Promise.reject(r);
     const errFn = Promise.reject;
     return fetch(url, req).then(okFn, errFn);
 };
+
 
 const endWrapOk = fa => a => { fa(a); return a};
 const endWrapErr = fa => a => { fa(a); return Promise.reject(a)}
@@ -20,7 +20,7 @@ const mkAddStackMessage = (setStack => (msg => {
 
 const mkCommandWithEff = (initMsg, okMsg, failMsg) => asyncEffect => (setStack, initMsgValue) => effectInput => {
     const addStackMessage = mkAddStackMessage(setStack);
-    /* here the bug */
+    
     const okPassthrough = endWrapOk(a => {
 	addStackMessage(okMsg(a))
     });
@@ -36,16 +36,15 @@ const mkCommandWithEff = (initMsg, okMsg, failMsg) => asyncEffect => (setStack, 
 const baseUrl = "http://localhost:8081/";
 const employeeRoute = baseUrl + "employee";
 
-
-
 const getEmployeesReq = {
     method: "GET" 
 };
 
 const getEmployeesIORequest = (_) => {
-    return fetchResponseError(employeeRoute, getEmployeesReq).then(e => e.map(employeeFromDb))
+    return fetchResponseError(employeeRoute, getEmployeesReq)
+    	.then(e => e.json())
+	.then(e => e.map(employeeFromDb));
 };
-
 
 
 const skillsRoute = baseUrl + "skills";
@@ -56,8 +55,10 @@ const getSkillsReq = {
 
 const getSkillsIORequest = (_) => {
     return fetchResponseError(skillsRoute, getSkillsReq)
-	.then(e => e.map(skillFromDb))
+	.then(e => e.json())
+	.then(e => e.map(skillFromDb));
 };
+
 
 
 
@@ -69,7 +70,6 @@ const newEmployeeReq = data => ({
 
 const newEmployeeIORequest = employeeDbObject => {
     return fetchResponseError(employeeRoute, newEmployeeReq(employeeDbObject))
-	.then(e => e.map(employeeFromDb))
 };
 
 const mkGetEmployeesSendMessage = a => {

@@ -1,20 +1,31 @@
 import React from 'react';
 
-import { Just, Nothing, Maybe,
-	 Err, Ok, doEither, maybeNull,
-	 Bool, 
-	 dispatchTypeclass,
-	 id, const_ }
-from '../types.js';
+import { id
+       , const_
+    
+       , Just
+       , Nothing
+       , Maybe
+       , maybeNull
+
+       , Bool
+       , String
+    
+       , Err
+       , Ok
+       , doEither
+    
+       , dispatchTypeclass } from '../types.js';
 
 import { DropDownMenu } from '../ui/DropDownMenu.js'
 
 import { constructRecord
        , toString
        , fromDb
+       , defaultValues
        , toTableHeaderSingle
        , toTableElementSingle
-
+       , tableConfigSingleColumn
        , mkFieldTypeA
        , mkField
        , emptyFieldParser }
@@ -50,7 +61,7 @@ const dobField = mkFieldTypeA(
        , update: (r, v) => ({...r, dob: v})})
     , maybeNull(String)
     , "date"
-    , id
+    , emptyFieldParser
 );
 
 const emailField = mkFieldTypeA(
@@ -62,36 +73,31 @@ const emailField = mkFieldTypeA(
     , emptyFieldParser
 );
 
-
 const activeDropDownInputConfig = (
     { toInputElement: ((value, setValue) => (
 	<li> Active: { value } </li>
     ))
-    , inputParse: id });
+    , inputDefault: ""
+    , inputParse: emptyFieldParser });
 
 const activeField = mkField(
     ({ project: r => r.active
-       , update: (r, v) => ({...r, active: v})})
+     , update: (r, v) => ({...r, active: v})})
     , maybeNull(Bool)
     , tableConfigSingleColumn("Active")
     , activeDropDownInputConfig );
 
 
-
-
-/*
 const skillViewColumns = [ skillNameField, skillDescriptionField ];
 
-const toTableHeaderMultiSkill = _ => skillViewColumns
-    .map( field => field.toTableHeader(field) )
+const toTableHeaderMultiSkill = skillViewColumns
+    .map( field => field.toTableHeader )
 
-const toTableElementMultiSkill = (val, _) => {
+const toTableElementMultiSkill = skillsDict => skill_id => {
     return skillViewColumns.map(field => {
-	return field.toTableElement(val, field)
+	return field.toTableElement(field.project( skillsDict[skill_id] ));
     });
 };
-
- */
 
 const skillDropDownInputConfig = skillsDict => {
     const inputElement = (skill, setSkill) => (
@@ -103,19 +109,27 @@ const skillDropDownInputConfig = skillsDict => {
 	    />
 	</li>);
     return ({ toInputElement: inputElement
-	    , inputParse: id })
+	    , inputDefault: Object.keys(skillsDict)[0]
+	    , inputParse: emptyFieldParser })
 };
 
 const skillFieldDynamic = skills => {
     const skillsDict = skillsToDict(skills);
+    console.log("hi agian", skillsDict);
     return mkField(
 	({ project: r => r.skill
-	   , update: (r, v) => ({...r, skill: v})})
+	 , update: (r, v) => ({...r, skill: v})})
 	, String
-	, tableConfigSingleColumn("Skill")
+	, ({ toTableHeader: toTableHeaderMultiSkill
+	   , toTableElement: toTableElementMultiSkill(skillsDict) })
 	, skillDropDownInputConfig(skillsDict) );
-}
+};
 
+const skillsField = (
+    { project: (r => r.skill)
+    , update: (r, v) => ({...r, skill: v})
+    , inputDefault: "Please Select"
+    , fromDb: String });
 
 const employeeTableFieldsDynamic = skills => (
     [ firstnameField
@@ -126,18 +140,17 @@ const employeeTableFieldsDynamic = skills => (
     , activeField
 ]);
 
+const employeeFromDbFields = (
+    [ firstnameField
+    , lastnameField
+    , dobField
+    , emailField
+    , skillsField
+    , activeField ]);
 
-
-// need TODO this
 // Either [String] Employee
 const parseNewEmployeeInput = (tableConfig, newEmployeeInput) => {
-    
-    const parsedValues =
-	constructRecord(tableConfig,
-			field => field.inputParse(
-			    field.project(newEmployeeInput)));
-    
-    console.log("Parsed values: ", parsedValues)
+    const parsedValues = constructRecord(tableConfig)(field => field.inputParse(field.project(newEmployeeInput)));
     return tableConfig.reduce((soFar, field) => {
 	const parsedValue = field.project(parsedValues);
 	return doEither(
@@ -153,6 +166,9 @@ const parseNewEmployeeInput = (tableConfig, newEmployeeInput) => {
     }, Just(id)(parsedValues));
 };
 
+const employeeFromDb = fromDb(employeeFromDbFields);
 
-export { employeeTableFieldsDynamic,
-	 parseNewEmployeeInput }
+export { employeeTableFieldsDynamic
+       , parseNewEmployeeInput
+    
+       , employeeFromDb };

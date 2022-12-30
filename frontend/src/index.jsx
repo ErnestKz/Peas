@@ -1,27 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { constructRecord,
-	 inputTypeToInitialValue,
-	 parseNewEmployeeInput, employeeToDb
-       , employeeTableFieldsDynamic } from './employee/employee.js';
+import { parseNewEmployeeInput
+       , employeeTableFieldsDynamic } from './fields/employee.js';
+
+import { toDb, prepend_new, defaultValues } from './fields/common.js';
 
 import { getSkillsCommandIO
        , getEmployeesCommandIO
        , newEmployeeCommandIO } from './effects.js';
 
+import { createNewEffectStack, mkAddNewEffectStack } from './effects/common.js'
+
 import { DataTableNewRowForm
        , DataTableNewRowFormValidation } from './views/NewRowForm.js'
-
 import { DataTable } from './views/DataTable.js'
-
 import { RootEffectStacks } from './views/EffectStack.js'
-
 import { DropDownMenu } from './ui/DropDownMenu.js'
-
 import { const_, id } from './types.js'
-
-import { mkSetSubState } from './lens.js'
+import { mkSetSubState, composeLens } from './lens.js'
 
 
 const newEmployeeLens =
@@ -32,116 +29,128 @@ const employeesLens =
     { project: s => s.employees
     , update: (s, n) => ({ ...s, employees: n })};
 
-const skillsLens =
-    { project: s => s.skills
-    , update: (s, n) => ({ ...s, skills: n })};
-
 const effectStackHistoryLens =
     { project: s => s.effectStackHistory
     , update: (s, n) => ({ ...s, effectStackHistory: n })};
 
+const tableConfigLens =
+    { project: s => s.tableConfig
+    , update: (s, n) => ({ ...s, tableConfig: n })};
+
+const editRowLens =
+    { project: s => s.editRow
+    , update: (s, n) => ({ ...s, editRow: n })};
+
+const selectedEmployeeLens = composeLens(editRowLens, (
+    { project: s => s.selectedEmployee
+    , update: (s, n) => ({ ...s, selectedEmployee: n }) }));
+
+const editEmployeeInputLens = composeLens(editRowLens, (
+    { project: s => s.editEmployeeInput
+    , update: (s, n) => ({ ...s, editEmployeeInput: n }) }));
+
 const initialAppState = {
     employees: [],
     skills: [],
-    newEmployeeInput: constructRecord(field => (
-	inputTypeToInitialValue(field.inputType))),
-    effectStackHistory: []
-};
-
-const createNewEffectStack = effectStackHistory => {
-    const newEffectStackHistory = [...effectStackHistory, []];
-    const index = newEffectStackHistory.length - 1;
-    const newEffectStackSubLens =
-	{ project: effStackHistory => effStackHistory[index]
-	, update: (effStackHistory, effStackUpdatedValue) => {
-	    return effStackHistory.map((a, idx) => idx == index ? effStackUpdatedValue : a);
-	}
-	}
-    return [newEffectStackHistory, newEffectStackSubLens];
-};
-
-const mkAddNewEffectStack = setEffectStackHistory => () => {
-    const res = [null]
-    // Assuming that the set functions are asynchronous, and block until it has set.
-    setEffectStackHistory( effectStackHistory => {
-	const [newEffectStackHistory, newEffectStackSubLens] = createNewEffectStack(effectStackHistory);
-	res[0] = newEffectStackSubLens;
-	return newEffectStackHistory;
-    });
-    
-    const setNewEffectStack = updateEffectStackValue => setEffectStackHistory(effectStackHistory => {
-	const newEffectStackSubLens = res[0];
-	const oldEffectStackValue = newEffectStackSubLens.project(effectStackHistory);
-	const newEffectStackValue = updateEffectStackValue(oldEffectStackValue);
-	return newEffectStackSubLens.update(effectStackHistory, newEffectStackValue);
-    });
-    return setNewEffectStack;
+    newEmployeeInput: null,
+    effectStackHistory: [],
+    tableConfig: null,
+    editRow: { selectedEmployee: null
+	     , editEmployeeInput: null }
 };
 
 const App = ( ) => {
     const [ appState, setAppState ] = useState(initialAppState);
+    
     const setNewEmployeeInput = mkSetSubState(setAppState, newEmployeeLens);
     const setEmployees = mkSetSubState(setAppState, employeesLens)
-    const setSkills = mkSetSubState(setAppState, skillsLens)
     const setEffectStackHistory = mkSetSubState(setAppState, effectStackHistoryLens);
-    const addNewEffectStack = mkAddNewEffectStack(setEffectStackHistory)
+    const setTableConfig = mkSetSubState(setAppState, tableConfigLens);
 
-    const startGetEmployeesCommandIO = () => {
-	const setStack = addNewEffectStack();
-	getEmployeesCommandIO(setStack, "Button - Get Employees")(
-	    null).then(employees => setEmployees(const_(employees)));
-    };
+    const setSelectedEmployee = mkSetSubState(setAppState, selectedEmployeeLens);
+    const setEditEmployeeInput = mkSetSubState(setAppState, editEmployeeInputLens);
+    
+    const addNewEffectStack = mkAddNewEffectStack(setEffectStackHistory)
 
     const startNewEmployeeCommandIO = ( newEmployee ) => {
 	const setStack = addNewEffectStack();
-	newEmployeeCommandIO(setStack, "Submit - New Employee")(employeeToDb( newEmployee ))
+	const forDb = prepend_new(toDb(newEmployee));
+	newEmployeeCommandIO(setStack, "Submit - New Employee")(forDb)
 	    .then(_ => getEmployeesCommandIO(setStack, "Post Submit - Get Employees")(null))
 	    .then(employees => setEmployees(const_(employees)));
     };
 
-    const startGetSkillsCommandIO = () => {
+    const initData = () => {
 	const setStack = addNewEffectStack();
 	getSkillsCommandIO(setStack, "Init - Getting Skills")(null)
-	    .then(skills => setSkills(const_(skills)));
+	    .then(skills => {
+		console.log("hello there", skills)
+		const tableConfig = employeeTableFieldsDynamic(skills);
+		console.log("hello there")
+		setTableConfig(const_(tableConfig));
+		setNewEmployeeInput(const_(defaultValues(tableConfig)));
+	    });
+	
+	const setStack2 = addNewEffectStack();
+	getEmployeesCommandIO(setStack2, "Init - Get Employees")(
+	    null).then(employees => setEmployees(const_(employees)));
     };
-    
-    /* useEffect(() => {
-       startGetSkillsCommandIO();
-     * });
-     */
-    
-    const tableConfig = employeeTableFieldsDynamic( appState.skills );
 
-    const newEmployeeValidation = parseNewEmployeeInput(tableConfig,
-							appState.newEmployeeInput);
+    useEffect(() => {
+	initData();
+    }, []);
+
+    
+    const dataTable = ((appState.tableConfig == null) ? [] : (
+	<DataTable employees = { appState.employees }
+		   tableConfig = { appState.tableConfig }
+	setEditEmployeeInput = { setEditEmployeeInput }
+		   setSelectedEmployee = { setSelectedEmployee } />
+    ));
+
+    const newRowForm = ((appState.tableConfig == null) ? [] : (
+	<DataTableNewRowForm
+	    tableConfig ={ appState.tableConfig }
+	newEmployeeInput= { appState.newEmployeeInput }
+	setNewEmployeeInput = { setNewEmployeeInput } />
+    ));
+
+    const formValidation = ((appState.tableConfig == null) ? [] : (() => {
+	const parsed = parseNewEmployeeInput(appState.tableConfig, appState.newEmployeeInput )
+	return (<DataTableNewRowFormValidation
+		    newEmployee={ startNewEmployeeCommandIO }
+		    newEmployeeValidation = { parsed }/>)
+    })());
+
+    const selectedEmployee = selectedEmployeeLens.project(appState);
+    
+    const editEmployees = () => {
+	if (selectedEmployee == null ){
+	    return [];
+	} else {
+	    
+	    const deleteButton = (<button onClick= {_} >Delete Employee</button>) // TODO Delete IO
+	    
+	    const input = (<button onClick= {_} >Submit Edits</button>) // TODO Update IO
+	    
+	    // TODO: reuse new rowm from and form validation components
+	    // TODO: put in a div with heading edit employee employeeNUm and add a border around the div
+
+	}
+    }();
+    
     return (
 	<div className="App">
+	    { dataTable }
+	    { newRowForm }
+	    { formValidation }
 	    
-	    <button onClick = { startGetEmployeesCommandIO } >
-		Click
-	    </button>
-	    <button onClick = { startGetSkillsCommandIO } >
-		Skills
-	    </button>
-	    <DataTable employees = { appState.employees }
-		       tableConfig ={ tableConfig }/>
-	    <RootEffectStacks effectStackHistory = { appState.effectStackHistory } />
-	    
-	    {/* <DataTableNewRowForm
-		newEmployeeInput= { appState.newEmployeeInput }
-		setNewEmployeeInput = { setNewEmployeeInput }/>
-		
-		<DataTableNewRowFormValidation
-		newEmployee={ startNewEmployeeCommandIO }
-		newEmployeeValidation = { newEmployeeValidation }/> */}
+	    <RootEffectStacks
+		effectStackHistory = { appState.effectStackHistory } />
 	</div>);
 };
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<React.StrictMode> <App/> </React.StrictMode>);
-
-
-// 1. dynamic creation of setSubState that project into array indices
-// 2. making the general pattern a bit more higher order so that it is reusable
-// 3. write the usage instances for it
+/* root.render(<App/>); */

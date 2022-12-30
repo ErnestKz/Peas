@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { doEither } from '../types.js';
-import { employeeTableFields, employeeToString } from '../employee/employee.js';
 
 import { mkSetSubState } from '../lens.js';
 
 const DataTableNewRowForm = (
-    { employeeTableFields, newEmployeeInput, setNewEmployeeInput } ) => {
+    { tableConfig, newEmployeeInput, setNewEmployeeInput } ) => {
 	
-	const inputs = employeeTableFields.map( field => {
+	const inputs = tableConfig.map( field => {
 	    const setValue = mkSetSubState(setNewEmployeeInput, field);
 	    const value = field.project(newEmployeeInput);
 	    return field.toInputElement(value, setValue);
@@ -17,7 +16,6 @@ const DataTableNewRowForm = (
 	
 	return (<ul> { inputs } </ul>)
     };
-
 
 const DataTableNewRowFormValidation = ( { newEmployeeValidation,
 					  newEmployee } ) => {

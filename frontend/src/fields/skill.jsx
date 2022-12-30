@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { Just, Nothing, Maybe,
-	 Err, Ok, doEither, maybeNull,
-	 Bool, String,
-	 dispatchTypeclass,
-	 id, const_ }
-from '../types.js';
+import { id
+       , const_
+       , maybeNull
+       , String } from '../types.js';
 
-import { mkFieldTypeB }
-from './common.js';
+import { mkFieldTypeB
+       , fromDb } from './common.js';
 
 const skillIdField = mkFieldTypeB(
     "Skill ID"
@@ -35,7 +33,15 @@ const skillsToDict = skills => skills
 	return acc;
     }, {});
 
+const skillsFields = [ skillIdField
+		     , skillNameField
+		     , skillDescriptionField ]
+
+const skillFromDb = fromDb(skillsFields);
+
 export { skillIdField
        , skillNameField
        , skillDescriptionField
-       , skillsToDict };
+       , skillsToDict
+
+       , skillFromDb };

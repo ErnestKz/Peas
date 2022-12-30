@@ -8,4 +8,15 @@ const mkSetSubState = (setState, lens) => {
     return setSubState;
 };
 
-export { mkSetSubState };
+const composeLens = (lensAB, lensBC) => {
+    const lensAC = { project: s => lensBC.project(lensAB.project(s))
+		   , update: (oldA, newC) => {
+		       const oldB = lensAB.project(oldA);
+		       const newB = lensBC.update(oldB, newC);
+		       const newA = lensAB.update(oldA, newB);
+		       return newA;
+		   } };
+    return lensAC;
+};
+
+export { mkSetSubState, composeLens };
