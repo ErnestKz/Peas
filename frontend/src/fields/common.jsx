@@ -38,6 +38,17 @@ const toDbDispatchMap = {
     "boolean": id
 };
 
+const toInput = x => dispatchTypeclass(toInputDispatchMap, x);
+
+const toInputDispatchMap = {
+    "_JUST": val => toInput(val._VALUE),
+    "_NOTHING": _ => "",
+    "Dict": r => dictFmap(toInput, r),
+    "string": id,
+    "number": id,
+    "boolean": id
+};
+
 const constructRecord = fields => f => fields
     .reduce((acc, field) => field.update(acc, f(field)), {});
 
@@ -92,6 +103,12 @@ const tableConfigSingleColumn = name => {
     return tableConfig 
 };
 
+// use one list of employee fields for one thing
+// and the another list of employee fields for another
+// 1. recieve and use from db on all employee fields
+// 2. use sin id for employee table and input form
+// 3. and keep the id in the closure/state
+
 const inputTypeToInputConfig = (name, inputType, inputParse) => {
     switch (inputType) {
 	case "text": return (
@@ -144,6 +161,7 @@ const prepend_new = r => {
 export { constructRecord
        , toString
        , toDb
+       , toInput
        , prepend_new
        , toTableHeaderSingle
        , toTableElementSingle

@@ -84,9 +84,7 @@ const App = ( ) => {
 	const setStack = addNewEffectStack();
 	getSkillsCommandIO(setStack, "Init - Getting Skills")(null)
 	    .then(skills => {
-		console.log("hello there", skills)
 		const tableConfig = employeeTableFieldsDynamic(skills);
-		console.log("hello there")
 		setTableConfig(const_(tableConfig));
 		setNewEmployeeInput(const_(defaultValues(tableConfig)));
 	    });
@@ -119,29 +117,44 @@ const App = ( ) => {
 	const parsed = parseNewEmployeeInput(appState.tableConfig, appState.newEmployeeInput )
 	return (<DataTableNewRowFormValidation
 		    newEmployee={ startNewEmployeeCommandIO }
-		    newEmployeeValidation = { parsed }/>)
+		    newEmployeeValidation = { parsed }/>);
     })());
-
+    
     const selectedEmployee = selectedEmployeeLens.project(appState);
     
-    const editEmployees = () => {
-	if (selectedEmployee == null ){
+    const editEmployees = (() => {
+	if (selectedEmployee == null){
 	    return [];
 	} else {
+	    const employeeInput = editEmployeeInputLens.project(appState);
+	    const setEmployeeInput = mkSetSubState(setAppState, editEmployeeInputLens);
 	    
-	    const deleteButton = (<button onClick= {_} >Delete Employee</button>) // TODO Delete IO
-	    
-	    const input = (<button onClick= {_} >Submit Edits</button>) // TODO Update IO
-	    
-	    // TODO: reuse new rowm from and form validation components
-	    // TODO: put in a div with heading edit employee employeeNUm and add a border around the div
+	    const parsed = parseNewEmployeeInput(
+		appState.tableConfig, employeeInput );
 
+	    return (
+		<div>
+		    <p> Editing: { selectedEmployee } </p>
+		    <button onClick= { id } >
+			Delete Employee
+		    </button>
+		    
+		    <DataTableNewRowForm
+			tableConfig = { appState.tableConfig }
+			newEmployeeInput= { employeeInput }
+			setNewEmployeeInput = { setEmployeeInput } />
+		    
+		    <DataTableNewRowFormValidation
+			newEmployee = { id } 
+			newEmployeeValidation = { parsed } />
+		</div>);
 	}
-    }();
+    });
     
     return (
 	<div className="App">
 	    { dataTable }
+	    { editEmployees() }
 	    { newRowForm }
 	    { formValidation }
 	    

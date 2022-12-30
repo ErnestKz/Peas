@@ -98,7 +98,7 @@ instance ToJSON UpdateEmployee
 instance FromJSON UpdateEmployee
 
 
-putEmployee :: UpdateEmployee -> DB ()
+putEmployee :: Text -> UpdateEmployee -> DB ()
 putEmployee updatedEmployee =
   do conn <- ask
      liftIO $ execute conn putEmployeeQuery updatedEmployee

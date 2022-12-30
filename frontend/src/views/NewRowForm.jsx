@@ -17,6 +17,7 @@ const DataTableNewRowForm = (
 	return (<ul> { inputs } </ul>)
     };
 
+
 const DataTableNewRowFormValidation = ( { newEmployeeValidation,
 					  newEmployee } ) => {
     return doEither(

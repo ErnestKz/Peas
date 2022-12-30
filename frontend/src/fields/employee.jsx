@@ -22,6 +22,7 @@ import { DropDownMenu } from '../ui/DropDownMenu.js'
 import { constructRecord
        , toString
        , fromDb
+       , toInput
        , defaultValues
        , toTableHeaderSingle
        , toTableElementSingle
@@ -44,6 +45,15 @@ const firstnameField = mkFieldTypeA(
     , maybeNull(String)
     , "text"
     , emptyFieldParser
+);
+
+
+const idField = mkField(
+    ({ project: r => r.employee_id
+       , update: (r, v) => ({...r, employee_id: v})})
+    , String
+    , {}
+    , {}
 );
 
 const lastnameField = mkFieldTypeA(
@@ -132,16 +142,34 @@ const skillsField = (
     , fromDb: String });
 
 const employeeTableFieldsDynamic = skills => (
+    [
+   , firstnameField
+   , lastnameField
+   , dobField
+   , emailField
+   , skillFieldDynamic(skills)
+   , activeField
+]);
+
+const employeeExtractValuesForInputFields = (
     [ firstnameField
     , lastnameField
     , dobField
     , emailField
-    , skillFieldDynamic(skills)
-    , activeField
-]);
+    , skillsField
+    , activeField ]);
+
+const extractForInputFields = employee => {
+    const employeeInputs = constructRecord(
+	employeeExtractValuesForInputFields)(
+	    field => toInput(field.project(employee)));
+    return employeeInputs;
+};
+
 
 const employeeFromDbFields = (
-    [ firstnameField
+    [ idField
+    , firstnameField
     , lastnameField
     , dobField
     , emailField
@@ -171,4 +199,5 @@ const employeeFromDb = fromDb(employeeFromDbFields);
 export { employeeTableFieldsDynamic
        , parseNewEmployeeInput
     
-       , employeeFromDb };
+       , employeeFromDb
+       , extractForInputFields };

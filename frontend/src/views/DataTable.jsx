@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
+import { extractForInputFields } from '../fields/employee.js'
+import { const_ } from '../types.js'
+
 const DataTable = ( { employees, tableConfig, setEditEmployeeInput, setSelectedEmployee } ) => {
     return (
 	<table className="dbTable">
@@ -19,15 +22,16 @@ const DataHeaders = ( { tableConfig } ) => {
 
 const DataRows = ( { employees, tableConfig, setEditEmployeeInput, setSelectedEmployee } ) => {
     return employees.map(employee => {
-	const tableRowClickHandler = () => {
-	    setSelectedEmployee(const_(_)) // TODO function for extracting the id of the field
-	    setEditEmployeeInput(const_(_)) // TODO function for extracting input from existing elment
-	};
 	
+	const tableRowClickHandler = () => {
+	    setSelectedEmployee(const_(employee.employee_id));
+	    setEditEmployeeInput(const_(extractForInputFields(employee)));
+	};
 	const trData = tableConfig
 	    .map( field => field.toTableElement(field.project(employee)));
+	
 	return (<tr onClick={ tableRowClickHandler }> { trData.flat() }</tr>)
     });
-}
+};
 
 export { DataTable }
