@@ -36,6 +36,11 @@ const mkCommandWithEff = (initMsg, okMsg, failMsg) => asyncEffect => (setStack, 
 const baseUrl = "http://localhost:8081/";
 const employeeRoute = baseUrl + "employee";
 
+
+
+
+// GET EMPLOYEE
+
 const getEmployeesReq = {
     method: "GET" 
 };
@@ -44,32 +49,6 @@ const getEmployeesIORequest = (_) => {
     return fetchResponseError(employeeRoute, getEmployeesReq)
     	.then(e => e.json())
 	.then(e => e.map(employeeFromDb));
-};
-
-
-const skillsRoute = baseUrl + "skills";
-
-const getSkillsReq = {
-    method: "GET" 
-};
-
-const getSkillsIORequest = (_) => {
-    return fetchResponseError(skillsRoute, getSkillsReq)
-	.then(e => e.json())
-	.then(e => e.map(skillFromDb));
-};
-
-
-
-
-const newEmployeeReq = data => ({
-    method: "POST",
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-});
-
-const newEmployeeIORequest = employeeDbObject => {
-    return fetchResponseError(employeeRoute, newEmployeeReq(employeeDbObject))
 };
 
 const mkGetEmployeesSendMessage = a => {
@@ -97,7 +76,7 @@ const mkGetEmployeesWithEffect = mkCommandWithEff(
 
 const getEmployeesCommandIO = mkGetEmployeesWithEffect(getEmployeesIORequest);
 
-
+// NEW EMPLOYEE
 
 const mkNewEmployeeSendMessage = a => {
     const message = { eventType: "NewEmployeeSend",
@@ -122,10 +101,59 @@ const mkNewEmployeeeWithEffect = mkCommandWithEff(
     mkNewEmployeeReceiveOkMessage,
     mkNewEmployeeReceiveErrMessage);
 
+
+const newEmployeeReq = data => ({
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+});
+
+const newEmployeeIORequest = employeeDbObject => {
+    return fetchResponseError(employeeRoute, newEmployeeReq(employeeDbObject))
+};
+
+const newEmployeeCommandIO = mkNewEmployeeeWithEffect(newEmployeeIORequest);
+
+// UPDATE EMPLOYEE
+
+const mkUpdateEmployeeSendMessage = a => {
+    const message = { eventType: "UpdateEmployeeSend",
+		      info: a };
+    return message;
+};
+
+const mkUpdateEmployeeReceiveOkMessage = a => {
+    const message = { eventType: "UpdateEmployeeReceiveOk",
+		      info: a };
+    return message;
+};
+
+const mkUpdateEmployeeReceiveErrMessage = a => {
+    const message = { eventType: "UpdateEmployeeReceiveErr",
+		      info: a };
+    return message;
+};
+
+const mkUpdateEmployeeWithEffect = mkCommandWithEff(
+    mkUpdateEmployeeSendMessage,
+    mkUpdateEmployeeReceiveOkMessage,
+    mkUpdateEmployeeReceiveErrMessage);
+
+
+const updateEmployeeReq = data => ({
+    method: "PUT",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+});
+
+const newEmployeeIORequest = employeeDbObject => {
+    return fetchResponseError(employeeRoute, updateEmployeeReq(employeeDbObject))
+};
+
 const newEmployeeCommandIO = mkNewEmployeeeWithEffect(newEmployeeIORequest);
 
 
-
+// GET SKILLS
 
 const mkGetSkillsSendMessage = a => {
     const message = { eventType: "GetSkillsSend",
@@ -149,6 +177,18 @@ const mkGetSkillseWithEffect = mkCommandWithEff(
     mkGetSkillsSendMessage,
     mkGetSkillsReceiveOkMessage,
     mkGetSkillsReceiveErrMessage);
+
+const skillsRoute = baseUrl + "skills";
+
+const getSkillsReq = {
+    method: "GET" 
+};
+
+const getSkillsIORequest = (_) => {
+    return fetchResponseError(skillsRoute, getSkillsReq)
+	.then(e => e.json())
+	.then(e => e.map(skillFromDb));
+};
 
 const getSkillsCommandIO = mkGetSkillseWithEffect(getSkillsIORequest);
 

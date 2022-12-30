@@ -72,7 +72,7 @@ postEmployee newEmployee = do
 putEmployeeQuery :: Query
 putEmployeeQuery
   = "insert into employees_table (employee_id, firstname, lastname, dob, email, skill_level, active)"
-  <> "values (?)"
+  <> "values (?, ?, ?, ?, ?, ?, ?)"
   <> "ON CONFLICT (employee_id) DO UPDATE"
   <> "SET firstname = excluded.firstname,"
     <> "lastname = excluded.lastname,"
@@ -82,8 +82,7 @@ putEmployeeQuery
     <> "active = excluded.active;"
 
 data UpdateEmployee = UpdateEmployee
-  { up_employee_id :: UUID
-  , up_firstname :: Maybe Text
+  { up_firstname :: Maybe Text
   , up_lastname :: Maybe Text
   , up_dob :: Maybe Day
   , up_email :: Maybe Text
@@ -99,9 +98,17 @@ instance FromJSON UpdateEmployee
 
 
 putEmployee :: Text -> UpdateEmployee -> DB ()
-putEmployee updatedEmployee =
+putEmployee employeeId updatedEmployee =
   do conn <- ask
-     liftIO $ execute conn putEmployeeQuery updatedEmployee
+     liftIO $ execute conn putEmployeeQuery ([employeeId] :. updatedEmployee)
+       -- ([employeeId
+       --  , up_firstname updatedEmployee
+       --  , up_lastname updatedEmployee
+       --  , up_dob updatedEmployee
+       --  , up_email updatedEmployee
+       --  , up_skill updatedEmployee
+       --  , up_active updatedEmployee])
+       
      pure ()
 
 -- Delete an employee.

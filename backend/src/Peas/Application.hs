@@ -49,10 +49,12 @@ newEmployeeHandler dbConn newEmployee =
   liftIO $ runReaderT (postEmployee newEmployee) dbConn >> pure NoContent
 
 updateEmployeeHandler :: Connection -> Text -> UpdateEmployee -> Handler NoContent
-updateEmployeeHandler dbConn text employee = undefined
+updateEmployeeHandler dbConn empId employee =
+  liftIO $ runReaderT (putEmployee empId employee) dbConn >> pure NoContent
 
 deleteEmployeeHandler :: Connection -> Text -> Handler NoContent
-deleteEmployeeHandler dbConn = undefined
+deleteEmployeeHandler dbConn empId = 
+  liftIO $ runReaderT (deleteEmployee empId) dbConn >> pure NoContent
 
 getSkillsHandler :: Connection -> Handler [ Skill ]
 getSkillsHandler dbConn = liftIO $ runReaderT getSkills dbConn
