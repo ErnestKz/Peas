@@ -22,6 +22,7 @@ import { DropDownMenu } from '../ui/DropDownMenu.js'
 import { constructRecord
        , toString
        , fromDb
+       , maybeBoolParser
        , toInput
        , defaultValues
        , toTableHeaderSingle
@@ -83,12 +84,19 @@ const emailField = mkFieldTypeA(
     , emptyFieldParser
 );
 
+
 const activeDropDownInputConfig = (
     { toInputElement: ((value, setValue) => (
-	<li> Active: { value } </li>
+	<li> <DropDownMenu
+		 onChange = { e => setValue(const_(e.target.value)) }
+		 activeOption = { value }
+		 possibleOptions = { [true, false, null ] }
+		 renderOptionFn = { toString } /> </li>
     ))
-    , inputDefault: ""
-    , inputParse: emptyFieldParser });
+    , inputDefault: null
+    , inputParse: maybeBoolParser });
+// input parser for true false or null
+/* String -> Either String (Maybe Boolean) */
 
 const activeField = mkField(
     ({ project: r => r.active

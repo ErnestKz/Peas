@@ -22,6 +22,7 @@ const dataTypeToStringDispatchMap =
     { "_JUST": val => toString(val._VALUE),
       "_NOTHING": _ => "EMPTY",
       "Dict": r => dictFmap(toString, r),
+      "null": _ => "EMPTY",
       "string": id,
       "number": x => x.toString(),
       "boolean": boolToString
@@ -32,6 +33,7 @@ const toDb = x => dispatchTypeclass(toDbDispatchMap, x);
 const toDbDispatchMap = {
     "_JUST": val => toDb(val._VALUE),
     "_NOTHING": _ => null,
+    "null": _ => null,
     "Dict": r => dictFmap(toDb, r),
     "string": id,
     "number": id,
@@ -86,7 +88,6 @@ const inputField = (name, inputType) => (value, setValue) => (
     </li>
 );
 
-
 const mkField = (lens, fromDb, tableConfig, inputConfig) => {
     const totalConfig = {
 	...tableConfig,
@@ -108,6 +109,21 @@ const tableConfigSingleColumn = name => {
 // 1. recieve and use from db on all employee fields
 // 2. use sin id for employee table and input form
 // 3. and keep the id in the closure/state
+
+
+const maybeBoolParser_ = maybeBool => {
+    if (maybeBool == "true" || maybeBool == true) {
+	return (Just(Bool)(true));
+    } else if (maybeBool == "false" || maybeBool == false) {
+	return (Just(Bool)(false));
+    } else {
+	return Nothing;
+    }
+};
+
+const maybeBoolParser = maybeBool => {
+    return Ok(Maybe(Bool))(maybeBoolParser_(maybeBool))
+};
 
 const inputTypeToInputConfig = (name, inputType, inputParse) => {
     switch (inputType) {
@@ -157,12 +173,17 @@ const prepend_new = r => {
     return Object.fromEntries(newEntries);
 };
 
+const prepend_up = r => {
+    const newEntries = (Object.entries(r).map(([k, v]) => ["up_" + k, v]));
+    return Object.fromEntries(newEntries);
+};
 
 export { constructRecord
        , toString
        , toDb
        , toInput
        , prepend_new
+       , prepend_up
        , toTableHeaderSingle
        , toTableElementSingle
        , fromDb
@@ -171,4 +192,5 @@ export { constructRecord
        , mkFieldTypeA
        , mkFieldTypeB
        , mkField
-       , tableConfigSingleColumn };
+       , tableConfigSingleColumn
+       , maybeBoolParser};

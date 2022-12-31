@@ -62,7 +62,16 @@ const doEither = (either, okFn, errFn) => {
     }
 };
 
+
+// todo can use a more abstract dispatcher function so that it checks
+// if the key exists in the dictionary
 function dispatchTypeclass ( dispatchMap, value ) {
+    
+    if (value == null) {
+	console.log("value", value, "is null")
+	return dispatchMap["null"](value)
+    }
+    
     const constructor = value._CONS;
     if (constructor in dispatchMap) {
 	/* console.log("Constructor dispatch") */

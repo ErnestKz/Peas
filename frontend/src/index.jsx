@@ -4,11 +4,13 @@ import ReactDOM from 'react-dom/client';
 import { parseNewEmployeeInput
        , employeeTableFieldsDynamic } from './fields/employee.js';
 
-import { toDb, prepend_new, defaultValues } from './fields/common.js';
+import { toDb, prepend_new, prepend_up, defaultValues } from './fields/common.js';
 
 import { getSkillsCommandIO
        , getEmployeesCommandIO
-       , newEmployeeCommandIO } from './effects.js';
+       , newEmployeeCommandIO
+       , updateEmployeeCommandIO
+       , deleteEmployeeCommandIO} from './effects.js';
 
 import { createNewEffectStack, mkAddNewEffectStack } from './effects/common.js'
 
@@ -17,9 +19,8 @@ import { DataTableNewRowForm
 import { DataTable } from './views/DataTable.js'
 import { RootEffectStacks } from './views/EffectStack.js'
 import { DropDownMenu } from './ui/DropDownMenu.js'
-import { const_, id } from './types.js'
+import { const_, id, doEither } from './types.js'
 import { mkSetSubState, composeLens } from './lens.js'
-
 
 const newEmployeeLens =
     { project: s => s.newEmployeeInput
@@ -79,7 +80,22 @@ const App = ( ) => {
 	    .then(_ => getEmployeesCommandIO(setStack, "Post Submit - Get Employees")(null))
 	    .then(employees => setEmployees(const_(employees)));
     };
+    
+    const startUpdateEmployeeCommandIO = employeeId => newEmployee => {
+	const setStack = addNewEffectStack();
+	const forDb = prepend_up(toDb(newEmployee));
+	updateEmployeeCommandIO(setStack, "Submit - Update Employee" + employeeId)({ employeeId: employeeId, employeeDbObject: forDb })
+	    .then(_ => getEmployeesCommandIO(setStack, "Post Submit - Get Employees")(null))
+	    .then(employees => setEmployees(const_(employees)));
+    };
 
+    const startDeleteEmployeeCommandIO = employeeId => {
+	const setStack = addNewEffectStack();
+	deleteEmployeeCommandIO(setStack, "Submit - Delete Employee " + employeeId)({ employeeId: employeeId })
+	    .then(_ => getEmployeesCommandIO(setStack, "Post Submit - Get Employees")(null))
+	    .then(employees => setEmployees(const_(employees)));
+    };
+    
     const initData = () => {
 	const setStack = addNewEffectStack();
 	getSkillsCommandIO(setStack, "Init - Getting Skills")(null)
@@ -95,7 +111,7 @@ const App = ( ) => {
     };
 
     useEffect(() => {
-	initData();
+	/* initData(); */
     }, []);
 
     
@@ -128,14 +144,17 @@ const App = ( ) => {
 	} else {
 	    const employeeInput = editEmployeeInputLens.project(appState);
 	    const setEmployeeInput = mkSetSubState(setAppState, editEmployeeInputLens);
-	    
 	    const parsed = parseNewEmployeeInput(
 		appState.tableConfig, employeeInput );
 
+	    console.log("Employee Input: ", employeeInput)
+	    console.log("Parsed: ", parsed)
+	    console.log("ToDb: ", doEither(parsed, id, id))
+	    
 	    return (
 		<div>
 		    <p> Editing: { selectedEmployee } </p>
-		    <button onClick= { id } >
+		    <button onClick= { () => startDeleteEmployeeCommandIO(selectedEmployee) } >
 			Delete Employee
 		    </button>
 		    
@@ -145,7 +164,7 @@ const App = ( ) => {
 			setNewEmployeeInput = { setEmployeeInput } />
 		    
 		    <DataTableNewRowFormValidation
-			newEmployee = { id } 
+			newEmployee = { startUpdateEmployeeCommandIO(selectedEmployee) } 
 			newEmployeeValidation = { parsed } />
 		</div>);
 	}

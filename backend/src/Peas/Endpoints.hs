@@ -26,8 +26,8 @@ type EmployeeEndpoints =
          :> PutNoContent)
     
    :<|> (Capture "employeeid" Text
-          :> DeleteNoContent)
-  )
+          :> DeleteNoContent))
+  
 {-
 type AuthenticateEndpoint
   = "authenticate"

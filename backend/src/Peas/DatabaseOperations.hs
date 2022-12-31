@@ -71,15 +71,15 @@ postEmployee newEmployee = do
 -- Update an existing employee.
 putEmployeeQuery :: Query
 putEmployeeQuery
-  = "insert into employees_table (employee_id, firstname, lastname, dob, email, skill_level, active)"
-  <> "values (?, ?, ?, ?, ?, ?, ?)"
-  <> "ON CONFLICT (employee_id) DO UPDATE"
-  <> "SET firstname = excluded.firstname,"
-    <> "lastname = excluded.lastname,"
-    <> "dob = excluded.dob,"
-    <> "email = excluded.email,"
-    <> "skill_level = excluded.skill_level,"
-    <> "active = excluded.active;"
+  = "insert into employees_table (employee_id, firstname, lastname, dob, email, skill_level, active) "
+  <> "values (?, ?, ?, ?, ?, ?, ?) "
+  <> "ON CONFLICT (employee_id) DO UPDATE "
+  <> "SET firstname = excluded.firstname, "
+    <> "lastname = excluded.lastname, "
+    <> "dob = excluded.dob, "
+    <> "email = excluded.email, "
+    <> "skill_level = excluded.skill_level, "
+    <> "active = excluded.active; "
 
 data UpdateEmployee = UpdateEmployee
   { up_firstname :: Maybe Text
@@ -114,7 +114,7 @@ putEmployee employeeId updatedEmployee =
 -- Delete an employee.
 deleteEmployeeQuery :: Query
 deleteEmployeeQuery
-  = "delete from employees_table"
+  = "delete from employees_table "
   <> "where employee_id = ?;"
 
 deleteEmployee :: Text -> DB ()

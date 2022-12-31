@@ -139,19 +139,58 @@ const mkUpdateEmployeeWithEffect = mkCommandWithEff(
     mkUpdateEmployeeReceiveOkMessage,
     mkUpdateEmployeeReceiveErrMessage);
 
-
 const updateEmployeeReq = data => ({
     method: "PUT",
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
 });
 
-const newEmployeeIORequest = employeeDbObject => {
-    return fetchResponseError(employeeRoute, updateEmployeeReq(employeeDbObject))
+const employeeUrlRoute = employeeId => baseUrl + "employee/" + employeeId;
+
+const updateEmployeeIORequest = ({ employeeId, employeeDbObject }) => {
+    return fetchResponseError( employeeUrlRoute(employeeId)
+			     , updateEmployeeReq(employeeDbObject));
 };
 
-const newEmployeeCommandIO = mkNewEmployeeeWithEffect(newEmployeeIORequest);
+const updateEmployeeCommandIO = mkUpdateEmployeeWithEffect(updateEmployeeIORequest);
 
+// delete EMPLOYEE
+
+const mkDeleteEmployeeSendMessage = a => {
+    const message = { eventType: "DeleteEmployeeSend",
+		      info: a };
+    return message;
+};
+
+const mkDeleteEmployeeReceiveOkMessage = a => {
+    const message = { eventType: "DeleteEmployeeReceiveOk",
+		      info: a };
+    return message;
+};
+
+const mkDeleteEmployeeReceiveErrMessage = a => {
+    const message = { eventType: "DeleteEmployeeReceiveErr",
+		      info: a };
+    return message;
+};
+
+const mkDeleteEmployeeWithEffect = mkCommandWithEff(
+    mkDeleteEmployeeSendMessage,
+    mkDeleteEmployeeReceiveOkMessage,
+    mkDeleteEmployeeReceiveErrMessage);
+
+const deleteEmployeeReq = ({
+    method: "DELETE",
+    /* headers: { 'Content-Type': 'application/json' }, */
+    /* body: JSON.stringify(data) */
+});
+
+const deleteEmployeeIORequest = ({ employeeId }) => {
+    return fetchResponseError( employeeUrlRoute(employeeId)
+			     , deleteEmployeeReq );
+};
+
+const deleteEmployeeCommandIO = mkDeleteEmployeeWithEffect(deleteEmployeeIORequest);
 
 // GET SKILLS
 
@@ -192,4 +231,4 @@ const getSkillsIORequest = (_) => {
 
 const getSkillsCommandIO = mkGetSkillseWithEffect(getSkillsIORequest);
 
-export { getEmployeesCommandIO, newEmployeeCommandIO, getSkillsCommandIO }
+export { getEmployeesCommandIO, newEmployeeCommandIO, getSkillsCommandIO, updateEmployeeCommandIO, deleteEmployeeCommandIO }
