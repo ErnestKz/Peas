@@ -9,7 +9,9 @@ import Lucid ( Html, body_, content_, doctypehtml_
              , head_, href_, link_, meta_, name_
              , rel_, script_, src_, title_, div_, id_
              , style_ , charset_)
-import Servant.HTML.Lucid       (HTML)       
+import Servant.HTML.Lucid       (HTML)
+
+import Control.Monad.Reader
 
 type PageEndpoint
   = Get '[HTML] (Html ())

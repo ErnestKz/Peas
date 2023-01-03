@@ -7,30 +7,27 @@ import Peas.Prelude
 import Peas.DatabaseOperations
 
 import Servant.API
-import Servant.Auth.Server
+import Servant.Auth.Server as SAS
 
 type PrivateEmployeeEndpoints
-  = "employee" :> Auth '[JWT] () :> EmployeeEndpoints
-
-type PublicEmployeeEndpoints
-  = "skills" :> Get '[JSON] [Skill]
-  :<|>  "employee" :>  EmployeeEndpoints
-
-type EmployeeEndpoints = 
-  (Get '[JSON] [Employee]
-   :<|> (ReqBody '[JSON] (NewEmployee)
-          :> PostNoContent)
-    
-   :<|> (Capture "employeeid" Text
-         :> ReqBody '[JSON] (UpdateEmployee)
-         :> PutNoContent)
-    
-   :<|> (Capture "employeeid" Text
-          :> DeleteNoContent))
+  = ("skills" :> Get '[JSON] [Skill])
   
-{-
-type AuthenticateEndpoint
-  = "authenticate"
-  :> ReqBody '[JSON] LoginForm
-  :> Post '[JSON] String
--}
+    :<|> ("authenticate" :>
+          ReqBody '[JSON] UserLogin :>
+          Post '[JSON] (Headers '[ Header "Set-Cookie" SetCookie
+                                 , Header "Set-Cookie" SetCookie ] ()))
+    
+    :<|>  ( "employee" :>
+            (SAS.Auth '[Cookie] () :> Get '[JSON] [Employee]
+            
+             :<|> (SAS.Auth '[Cookie] () :>
+                   ReqBody '[JSON] NewEmployee :> Post '[JSON] ())
+              
+             :<|> (SAS.Auth '[Cookie] () :>
+                   Capture "employeeid" Text :>
+                   ReqBody '[JSON] UpdateEmployee :> Put '[JSON] ())
+              
+             :<|> (SAS.Auth '[Cookie] () :>
+                   Capture "employeeid" Text :> Delete '[JSON] ())))
+
+                       

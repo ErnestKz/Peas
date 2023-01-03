@@ -9,7 +9,6 @@ const fetchResponseError = (url, req) => {
     return fetch(url, req).then(okFn, errFn);
 };
 
-
 const endWrapOk = fa => a => { fa(a); return a};
 const endWrapErr = fa => a => { fa(a); return Promise.reject(a)}
 
@@ -37,14 +36,31 @@ const baseUrl = "http://localhost:8081/";
 const employeeRoute = baseUrl + "employee";
 
 
+// AUTH REQs
 
+const authRoute = baseUrl + "authenticate";
+
+const authReq = data => ({
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+});
+
+/* const testAuthReq = authReq(({ username: "Mr. Bean"
+ * 			     , password: "t3dDy543" }));
+ *  */
+const postAuthIORequest = ( usernameAndPassword ) => {
+    return fetchResponseError(authRoute, authReq(usernameAndPassword))
+    	.then(e => e.json());
+
+};
 
 // GET EMPLOYEE
 
-const getEmployeesReq = {
-    method: "GET" 
-};
+const getEmployeesReq = ({ method: "GET" });
 
+/* const tok = "eyJhbGciOiJIUzUxMiJ9.eyJkYXQiOltdfQ.XZi3G1qrCDYN3AX2h1AI8GPWxTjQHYh94Y8Qhhl4NB0Z3eIORJRNV3_91Vkd_t1WcAsAJmeU7xSd5ta7HbJdGw";
+ *  */
 const getEmployeesIORequest = (_) => {
     return fetchResponseError(employeeRoute, getEmployeesReq)
     	.then(e => e.json())
@@ -231,4 +247,4 @@ const getSkillsIORequest = (_) => {
 
 const getSkillsCommandIO = mkGetSkillseWithEffect(getSkillsIORequest);
 
-export { getEmployeesCommandIO, newEmployeeCommandIO, getSkillsCommandIO, updateEmployeeCommandIO, deleteEmployeeCommandIO }
+export { getEmployeesCommandIO, newEmployeeCommandIO, getSkillsCommandIO, updateEmployeeCommandIO, deleteEmployeeCommandIO, postAuthIORequest, getEmployeesIORequest }

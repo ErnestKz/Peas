@@ -10,7 +10,7 @@ insert into skill_table (skill_name, skill_description)
 
 insert into users_table (username, password)
        values
-	('Mr. Bean', crypt('t3dDy543', gen_salt('bf')));
+	('admin', crypt('admin', gen_salt('bf')));
 
 
 -- so basically picking a skill from the list of skills
@@ -31,6 +31,6 @@ insert into employees_table
 	, (select skill_id from skill_table where skill_name='Potion Seller')
 	, true ),
 
-	( 'Aime', 'Lee', date '1999-3-12' , 'aime@apothecary.ie'
+	( 'Alice', 'Lee', date '1999-3-12' , 'aime@apothecary.ie'
 	, (select skill_id from skill_table where skill_name='Potion Seller')
 	, true ) ;

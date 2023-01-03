@@ -142,7 +142,7 @@ instance FromJSON UserLogin
 authenticateUser :: UserLogin -> DB Bool
 authenticateUser userLogin = do
   conn <- ask
-  [ Only b ] <- liftIO $ query conn deleteEmployeeQuery [password userLogin, username userLogin]
+  [ Only b ] <- liftIO $ query conn authenticateQuery [password userLogin, username userLogin]
   pure b
 
 
