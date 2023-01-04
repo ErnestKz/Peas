@@ -101,14 +101,6 @@ putEmployee :: Text -> UpdateEmployee -> DB ()
 putEmployee employeeId updatedEmployee =
   do conn <- ask
      liftIO $ execute conn putEmployeeQuery ([employeeId] :. updatedEmployee)
-       -- ([employeeId
-       --  , up_firstname updatedEmployee
-       --  , up_lastname updatedEmployee
-       --  , up_dob updatedEmployee
-       --  , up_email updatedEmployee
-       --  , up_skill updatedEmployee
-       --  , up_active updatedEmployee])
-       
      pure ()
 
 -- Delete an employee.
@@ -126,7 +118,7 @@ deleteEmployee employeeId = do
 
 -- Authenticate login.
 authenticateQuery :: Query
-authenticateQuery = "select (password = crypt(?, password)) as pswmatch from users_table where username=?;"
+authenticateQuery = "select exists ( select (password = crypt(?, password)) as pswmatch from users_table where username=? );"
 
 data UserLogin = UserLogin
   { username :: Text
