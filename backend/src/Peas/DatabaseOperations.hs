@@ -96,7 +96,6 @@ instance FromRow UpdateEmployee
 instance ToJSON UpdateEmployee
 instance FromJSON UpdateEmployee
 
-
 putEmployee :: Text -> UpdateEmployee -> DB ()
 putEmployee employeeId updatedEmployee =
   do conn <- ask
@@ -137,9 +136,7 @@ authenticateUser userLogin = do
   [ Only b ] <- liftIO $ query conn authenticateQuery [password userLogin, username userLogin]
   pure b
 
-
 -- Get Skills
-
 getSkillsQuery :: Query
 getSkillsQuery
   = "SELECT skill_id, skill_name, skill_description"

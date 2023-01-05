@@ -17,17 +17,13 @@ type PrivateEmployeeEndpoints
           Post '[JSON] (Headers '[ Header "Set-Cookie" SetCookie
                                  , Header "Set-Cookie" SetCookie ] ()))
     
-    :<|>  ( "employee" :>
-            (SAS.Auth '[Cookie] () :> Get '[JSON] [Employee]
-            
-             :<|> (SAS.Auth '[Cookie] () :>
-                   ReqBody '[JSON] NewEmployee :> Post '[JSON] ())
-              
-             :<|> (SAS.Auth '[Cookie] () :>
-                   Capture "employeeid" Text :>
-                   ReqBody '[JSON] UpdateEmployee :> Put '[JSON] ())
-              
-             :<|> (SAS.Auth '[Cookie] () :>
-                   Capture "employeeid" Text :> Delete '[JSON] ())))
-
+    :<|> ( SAS.Auth '[Cookie] () :>
+           ("employee" :>
+            (Get '[JSON] [Employee]
+             :<|> (ReqBody '[JSON] NewEmployee :>
+                    Post '[JSON] ())
+              :<|> (Capture "employeeid" Text :>
+                     ReqBody '[JSON] UpdateEmployee :> Put '[JSON] ())
+             :<|> (Capture "employeeid" Text :> Delete '[JSON] ()))))
+  
                        

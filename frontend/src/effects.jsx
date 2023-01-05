@@ -59,12 +59,12 @@ const postAuthIORequest = ( usernameAndPassword ) => {
 
 const getEmployeesReq = ({ method: "GET" });
 
-/* const tok = "eyJhbGciOiJIUzUxMiJ9.eyJkYXQiOltdfQ.XZi3G1qrCDYN3AX2h1AI8GPWxTjQHYh94Y8Qhhl4NB0Z3eIORJRNV3_91Vkd_t1WcAsAJmeU7xSd5ta7HbJdGw";
- *  */
 const getEmployeesIORequest = (_) => {
     return fetchResponseError(employeeRoute, getEmployeesReq)
     	.then(e => e.json())
-	.then(e => e.map(employeeFromDb));
+	.then(e => { console.log("From DB Input:", e); return e })
+	.then(e => e.map(employeeFromDb))
+	.then(e => { console.log("Mapped FromDB:", e); return e });
 };
 
 const mkGetEmployeesSendMessage = a => {

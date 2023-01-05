@@ -104,13 +104,6 @@ const tableConfigSingleColumn = name => {
     return tableConfig 
 };
 
-// use one list of employee fields for one thing
-// and the another list of employee fields for another
-// 1. recieve and use from db on all employee fields
-// 2. use sin id for employee table and input form
-// 3. and keep the id in the closure/state
-
-
 const maybeBoolParser_ = maybeBool => {
     if (maybeBool == "true" || maybeBool == true) {
 	return (Just(Bool)(true));

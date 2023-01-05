@@ -14,9 +14,7 @@ import Network.Wai.Handler.Warp
 
 import Servant.Server.Internal.Context as C
 
-import Servant.Auth as SA
 import Servant.Auth.Server as SAS
-import Servant.Server
 
 import Database.PostgreSQL.Simple
 
@@ -25,14 +23,10 @@ import Control.Monad.Reader
 instance SAS.FromJWT ()
 instance SAS.ToJWT ()
 
-
--- server' :: JWTSettings -> ServerT ApplicationEndpoints AppM
--- server' jwts = 
-    
 runApplication :: IO ()
 runApplication = do
   myKey <- generateKey
-  settings <- pure $ defaultJWTSettings myKey
+  let settings = defaultJWTSettings myKey
   dbConn <- connectPostgreSQL "postgresql://localhost:5432/project?host=/tmp"
   run 8081 (application
              ( (defaultCookieSettings
@@ -56,11 +50,13 @@ application ctx dbConn =
   ctx
   (server (C.getContextEntry ctx) (C.getContextEntry ctx) dbConn)
 
-server :: CookieSettings -> JWTSettings -> Connection -> Server ApplicationEndpoints
+server :: CookieSettings -> JWTSettings -> Connection ->
+  Server ApplicationEndpoints
 server cs jwts dbConn
   = pageEndpointHandler
     :<|> getSkillsHandler dbConn
     :<|> authenticateHandler cs jwts dbConn
+    
     :<|> handleAGet dbConn
     :<|> handleANew dbConn
     :<|> handleAUp dbConn
@@ -110,13 +106,3 @@ deleteEmployeeHandler dbConn empId =
 
 getSkillsHandler :: Connection -> Handler [ Skill ]
 getSkillsHandler dbConn = liftIO $ runReaderT getSkills dbConn
-
-{-
-module that defines the interface to the database
-- reader monad
-- execute reader monad
-- read in a config for the db
-  - develop, test, prod
-
-- then the handler needs to somehow integrate with the monad
--}

@@ -228,7 +228,7 @@ const AppContent = ( ) => {
 		{ msg == null ? [] : <li><p>{ msg }</p></li>}
 	    </ul>)
 		
-	    , (<button onClick= { () => {
+	    , (<button onClick = { () => {
 		postAuthIORequest({username, password})
 		    .then((_) => setShowLogin(const_(false)))
 		    .then((_) => initData())
