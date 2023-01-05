@@ -37,7 +37,7 @@ runApplication = do
                C.:. EmptyContext)
              dbConn)
 
-type ApplicationEndpoints = PageEndpoint :<|> PrivateEmployeeEndpoints
+type ApplicationEndpoints = PageEndpoint :<|> DataEndpoints
 
 applicationEndpoints :: Proxy ApplicationEndpoints
 applicationEndpoints = Proxy
