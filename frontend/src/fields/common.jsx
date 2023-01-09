@@ -78,15 +78,17 @@ const emptyFieldParser = s => {
     return Ok(Maybe(String))(s == "" ? Nothing : Just(String)(s))
 };
 
-const inputField = (name, inputType) => (value, setValue) => (
-    <li>
+const inputField = (name, inputType) => (key, value, setValue) => {
+    return (<li key={key}>
 	<p> { name } :</p>
-	<input type ={ inputType }
-	       value = { value }
-	       onChange = { e => setValue(const_(e.target.value)) } >
+	<input
+	    key={ key+"inputfield" }
+	    type ={ inputType }
+	    value = { value }
+	    onChange = { e => setValue(const_(e.target.value)) } >
 	</input>
-    </li>
-);
+    </li>)
+};
 
 const mkField = (lens, fromDb, tableConfig, inputConfig) => {
     const totalConfig = {

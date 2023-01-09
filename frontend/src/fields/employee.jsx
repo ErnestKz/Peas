@@ -86,12 +86,14 @@ const emailField = mkFieldTypeA(
 
 
 const activeDropDownInputConfig = (
-    { toInputElement: ((value, setValue) => (
-	<li> <DropDownMenu
-		 onChange = { e => setValue(const_(e.target.value)) }
-		 activeOption = { value }
-		 possibleOptions = { [true, false, null ] }
-		 renderOptionFn = { toString } /> </li>
+    { toInputElement: ((key, value, setValue) => (
+	<li key={key} >
+	    <DropDownMenu
+		onChange = { e => setValue(const_(e.target.value)) }
+		activeOption = { value }
+		possibleOptions = { [true, false, null ] }
+		renderOptionFn = { toString } />
+	</li>
     ))
     , inputDefault: null
     , inputParse: maybeBoolParser });
@@ -118,13 +120,13 @@ const toTableElementMultiSkill = skillsDict => skill_id => {
 };
 
 const skillDropDownInputConfig = skillsDict => {
-    const inputElement = (skill, setSkill) => (
-	<li><DropDownMenu
-	    onChange = { e => setSkill(const_(e.target.value)) }
-	    activeOption = { skill }
-	    possibleOptions = { Object.keys(skillsDict) }
-	    renderOptionFn = { x => skillsDict[x].skill_name }
-	    />
+    const inputElement = (key, skill, setSkill) => (
+	<li key={key}>
+	    <DropDownMenu
+		onChange = { e => setSkill(const_(e.target.value)) }
+		activeOption = { skill }
+		possibleOptions = { Object.keys(skillsDict) }
+		renderOptionFn = { x => skillsDict[x].skill_name }/>
 	</li>);
     return ({ toInputElement: inputElement
 	    , inputDefault: Object.keys(skillsDict)[0]
@@ -150,13 +152,12 @@ const skillsField = (
     , fromDb: String });
 
 const employeeTableFieldsDynamic = skills => (
-    [
-   , firstnameField
-   , lastnameField
-   , dobField
-   , emailField
-   , skillFieldDynamic(skills)
-   , activeField
+    [ firstnameField
+    , lastnameField
+    , dobField
+    , emailField
+    , skillFieldDynamic(skills)
+    , activeField
 ]);
 
 const employeeExtractValuesForInputFields = (

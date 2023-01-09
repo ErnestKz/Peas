@@ -131,27 +131,7 @@ const AppContent = ( ) => {
 	/* postAuthIORequest(null); */
     }, []);
 
-    
-    const dataTable = ((appState.tableConfig == null) ? [] : (
-	<DataTable employees = { appState.employees }
-		   tableConfig = { appState.tableConfig }
-	setEditEmployeeInput = { setEditEmployeeInput }
-		   setSelectedEmployee = { setSelectedEmployee } />
-    ));
 
-    const newRowForm = ((appState.tableConfig == null) ? [] : (
-	<DataTableNewRowForm
-	    tableConfig ={ appState.tableConfig }
-	newEmployeeInput= { appState.newEmployeeInput }
-	setNewEmployeeInput = { setNewEmployeeInput } />
-    ));
-
-    const formValidation = ((appState.tableConfig == null) ? [] : (() => {
-	const parsed = parseNewEmployeeInput(appState.tableConfig, appState.newEmployeeInput )
-	return (<DataTableNewRowFormValidation
-		    newEmployee={ startNewEmployeeCommandIO }
-		    newEmployeeValidation = { parsed }/>);
-    })());
     
     const selectedEmployee = selectedEmployeeLens.project(appState);
     
@@ -246,13 +226,28 @@ const AppContent = ( ) => {
     const showLogin = showLoginLens.project(appState);
     const AppContent = () => {
 	if (showLogin) {
-	    return ([ <p>Please Login my Dude</p>
+	    return ([ <p>Please Login</p>
 		    , <Login/> ]);
-	} else
-	    return ([ dataTable
-		    , editEmployees()
-		    , newRowForm
-		    , formValidation ]);
+	} if (appState.tableConfig != null) {
+	    const parsed = parseNewEmployeeInput(appState.tableConfig, appState.newEmployeeInput )
+	    return (<div key="AppContent">
+		<DataTable
+		    employees = { appState.employees }
+		    tableConfig = { appState.tableConfig }
+		    setEditEmployeeInput = { setEditEmployeeInput }
+		    setSelectedEmployee = { setSelectedEmployee } />
+		{ editEmployees() }
+		<DataTableNewRowForm
+		    tableConfig ={ appState.tableConfig }
+		    newEmployeeInput= { appState.newEmployeeInput }
+		    setNewEmployeeInput = { setNewEmployeeInput } />
+		<DataTableNewRowFormValidation
+		    newEmployee={ startNewEmployeeCommandIO }
+		    newEmployeeValidation = { parsed }/>
+		
+	    </div>);
+	}
+	return [];
     };
     
     return (
@@ -264,3 +259,4 @@ const AppContent = ( ) => {
 };
 
 export { AppContent }
+

@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom/client';
 import { AppContent } from './AppContent.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<React.StrictMode> <AppContent/> </React.StrictMode>);
+/* root.render(<React.StrictMode> <AppContent/> </React.StrictMode>); */
+root.render(<AppContent/>);
 
-/* root.render(<App/>); */
 
 
 // child component retrieves a lens to access and change

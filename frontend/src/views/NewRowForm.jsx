@@ -8,10 +8,10 @@ import { mkSetSubState } from '../lens.js';
 const DataTableNewRowForm = (
     { tableConfig, newEmployeeInput, setNewEmployeeInput } ) => {
 	
-	const inputs = tableConfig.map( field => {
+	const inputs = tableConfig.map( (field, idx) => {
 	    const setValue = mkSetSubState(setNewEmployeeInput, field);
 	    const value = field.project(newEmployeeInput);
-	    return field.toInputElement(value, setValue);
+	    return field.toInputElement(idx, value, setValue);
 	});
 	
 	return (<ul> { inputs } </ul>)

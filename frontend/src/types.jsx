@@ -68,7 +68,6 @@ const doEither = (either, okFn, errFn) => {
 function dispatchTypeclass ( dispatchMap, value ) {
     
     if (value == null) {
-	console.log("value", value, "is null")
 	return dispatchMap["null"](value)
     }
     

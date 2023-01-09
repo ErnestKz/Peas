@@ -31,6 +31,6 @@ insert into employees_table
 	, (select skill_id from skill_table where skill_name='Potion Seller')
 	, true ),
 
-	( 'Alice', 'Lee', date '1999-3-12' , 'aime@apothecary.ie'
+	( 'Alice', 'Lee', date '1999-3-12' , 'Alice@apothecary.ie'
 	, (select skill_id from skill_table where skill_name='Potion Seller')
 	, true ) ;
